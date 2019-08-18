@@ -80,7 +80,7 @@
       systemd: state=stopped name=localspace daemon_reload=yes enabled=no
 
     - name: Start pgscan
-      systemd: state=started name=localhost enabled=yes
+      systemd: state=started name=localspace enabled=yes
 
 
     # LABELS ######################################################################
