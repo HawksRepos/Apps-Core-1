@@ -15,11 +15,14 @@
         pgrole: 'netdata'
         intport: '19999'
         extport: '19999'
-        image: 'titpetric/netdata'
+        image: 'titpetric/netdata:latest'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
+
+    - name: 'Including Tasks'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     # LABELS ######################################################################
     - name: 'Adding Traefik'
@@ -28,11 +31,21 @@
           traefik.frontend.auth.forward.address: '{{gauth}}'
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
-          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}},{{tldset}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
+          traefik.frontend.headers.SSLHost: '{{domain.stdout}}'
+          traefik.frontend.headers.SSLRedirect: 'true'
+          traefik.frontend.headers.STSIncludeSubdomains: 'true'
+          traefik.frontend.headers.STSPreload: 'true'
+          traefik.frontend.headers.STSSeconds: '315360000'
+          traefik.frontend.headers.browserXSSFilter: 'true'
+          traefik.frontend.headers.contentTypeNosniff: 'true'
+          traefik.frontend.headers.customResponseHeaders: 'X-Robots-Tag:noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
+          traefik.frontend.headers.forceSTSHeader: 'true'
 
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
+          - '/etc/localtime:/etc/localtime:ro'
           - '/sys:/host/sys:ro'
           - '/proc:/host/proc:ro'
           - '/var/run/docker.sock:/var/run/docker.sock'
@@ -49,6 +62,7 @@
         name: '{{pgrole}}'
         image: '{{image}}'
         pull: yes
+        hostname: '{{domain.stdout}}'
         capabilities:
           - SYS_PTRACE
         published_ports:
@@ -60,7 +74,7 @@
           - name: plexguide
             aliases:
               - '{{pgrole}}'
-        security_opts:    
+        security_opts:
           - apparmor:unconfined
         state: started
         labels: '{{pg_labels}}'

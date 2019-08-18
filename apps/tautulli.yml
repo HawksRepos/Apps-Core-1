@@ -20,14 +20,17 @@
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
-      
+
     - name: 'Including plugins '
       include_tasks: '/opt/coreapps/apps/_plugins.yml'
-      
+
     - name: 'Checking for existing app data'
       stat:
         path: /opt/appdata/tautulli/config.ini
       register: confcheck
+
+    - name: 'Including Tasks'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     # LABELS ######################################################################
     - name: 'Adding Traefik'
@@ -36,23 +39,21 @@
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
           traefik.frontend.auth.forward.address: '{{gauth}}'
-          traefik.frontend.rule: 'Host:plexpy.{{domain.stdout}},{{pgrole}}.{{domain.stdout}},{{tldset}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
 
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
+          - '/etc/localtime:/etc/localtime:ro'
           - '/opt/appdata/{{pgrole}}:/config'
           - '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Logs:/logs'
           - '/opt/appdata/{{pgrole}}/scripts:/scripts'
-          - '/etc/localtime:/etc/localtime:ro'
 
     - name: 'Setting PG ENV'
       set_fact:
         pg_env:
           PUID: '1000'
           PGID: '1000'
-          TZ: 'Europe/London'
-
 
     # MAIN DEPLOYMENT #############################################################
     - name: 'Deploying {{pgrole}}'
@@ -84,22 +85,6 @@
           docker_container:
             name: tautulli
             state: stopped
-
-        # - name: set http_username
-        #   ini_file:
-        #     path: '/opt/appdata/{{pgrole}}/config.ini'
-        #     section: misc
-        #     option: http_username
-        #     value: plex
-        #     state: present
-
-        # - name: set http_password
-        #   ini_file:
-        #     path: '/opt/appdata/{{pgrole}}/config.ini'
-        #     section: misc
-        #     option: http_password
-        #     value: guide
-        #     state: present
 
         - name: Restart {{pgrole}}
           docker_container:

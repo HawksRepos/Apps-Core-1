@@ -16,6 +16,8 @@
         pgrole: 'qbittorrent'
         intport: '8080'
         extport: '8083'
+        intport2: '7889'
+        extport2: '7889'
         image: 'linuxserver/qbittorrent'
 
     # CORE (MANDATORY) #############################################################
@@ -23,10 +25,13 @@
       include_tasks: '/opt/coreapps/apps/_core.yml'
 
     - name: 'Including folders'
-      include_tasks: '/opt/coreapps/apps/_downloaders.yml'
+      include_tasks: '/opt/coreapps/apps/_downto.yml'
 
     - name: 'Including plugins'
       include_tasks: '/opt/coreapps/apps/_plugins.yml'
+
+    - name: 'Including Tasks'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     # LABELS ######################################################################
     - name: 'Adding Traefik'
@@ -35,15 +40,24 @@
           traefik.frontend.auth.forward.address: '{{gauth}}'
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
-          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}},{{tldset}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
+          traefik.frontend.headers.SSLHost: '{{domain.stdout}}'
+          traefik.frontend.headers.SSLRedirect: 'true'
+          traefik.frontend.headers.STSIncludeSubdomains: 'true'
+          traefik.frontend.headers.STSPreload: 'true'
+          traefik.frontend.headers.STSSeconds: '315360000'
+          traefik.frontend.headers.browserXSSFilter: 'true'
+          traefik.frontend.headers.contentTypeNosniff: 'true'
+          traefik.frontend.headers.customResponseHeaders: 'X-Robots-Tag:noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
+          traefik.frontend.headers.forceSTSHeader: 'true'
 
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
           - '/etc/localtime:/etc/localtime:ro'
-          - '/opt/appdata/{{pgrole}}:/config'
           - '{{path.stdout}}:{{path.stdout}}'
           - '/mnt:/mnt'
+          - '/opt/appdata/{{pgrole}}:/config'
 
     - name: 'Setting PG ENV'
       set_fact:
@@ -64,6 +78,7 @@
         pull: yes
         published_ports:
           - '{{ports.stdout}}{{extport}}:{{intport}}'
+          - '{{extport2}}:{{intport2}}'
         volumes: '{{pg_volumes}}'
         env: '{{pg_env}}'
         restart_policy: unless-stopped
@@ -87,14 +102,29 @@
         name: '{{pgrole}}'
         state: stopped
 
+    - name: Set torrent port
+      ini_file:
+        path: '/opt/appdata/{{pgrole}}/qBittorrent/qBittorrent.conf'
+        section: Preferences
+        option: Connection\PortRangeMin
+        value: '7889'
+        state: present
+
     - name: Set SavePath
       ini_file:
         path: '/opt/appdata/{{pgrole}}/qBittorrent/qBittorrent.conf'
         section: Preferences
         option: Downloads\SavePath
-        value: '{{path.stdout}}/downloads/{{pgrole}}'
+        value: '{{path.stdout}}/downloads/torrent'
         state: present
 
+    - name: Set TempPath
+      ini_file:
+        path: '/opt/appdata/{{pgrole}}/qBittorrent/qBittorrent.conf'
+        section: Preferences
+        option: Downloads\TempPath
+        value: '{{path.stdout}}/incomplete/torrent'
+        state: present
 
     - name: Set TempPathEnabled
       ini_file:
@@ -245,7 +275,7 @@
             value: false
             force: yes
             state: present
-            
+
         - name: Set ServerDomains
           ini_file:
             path: '/opt/appdata/{{pgrole}}/qBittorrent/qBittorrent.conf'
@@ -263,7 +293,7 @@
             value: '*'
             force: yes
             state: present
-            
+
       when: not confcheck.stat.exists
 
     - name: Restart {{pgrole}}

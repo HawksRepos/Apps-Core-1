@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Check if Image Variable Exists
+      stat:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins'
+      register: pathcheck
+
+    - name: 'Transfer Image Variable'
+      shell: 'bash /opt/coreapps/apps/templates/plex/bundle.sh 1>/dev/null 2>&1'
+      when: pathcheck.stat.exists
