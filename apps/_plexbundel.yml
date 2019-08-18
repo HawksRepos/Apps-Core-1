@@ -10,3 +10,7 @@
     - name: 'Transfer Image Variable'
       shell: 'bash /opt/coreapps/apps/templates/plex/bundle.sh 1>/dev/null 2>&1'
       when: pathcheck.stat.exists
+
+##PG-Core
+
+##PG-Core

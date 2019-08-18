@@ -115,3 +115,7 @@
             name: '{{pgrole}}'
             state: started
       when: not xmlcheck.stat.exists
+
+##PG-Core
+
+##PG-Core

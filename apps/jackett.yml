@@ -122,3 +122,7 @@
       docker_container:
         name: '{{pgrole}}'
         state: started
+
+##PG-Core
+
+##PG-Core
