@@ -53,9 +53,11 @@
         owner: '1000'
         group: '1000'
 
+     ### mountcheck replace
+ 
     - name: replacing MountCheck Service
       template:
-        src: /opt/plexguide/menu/pgui/mountcheck.service
+        src: /opt/coreapps/apps/templates/pgui/mountcheck.service
         dest: /etc/systemd/system/mountcheck.service
         force: yes
 
@@ -64,6 +66,22 @@
 
     - name: Start pgscan
       systemd: state=started name=mountcheck enabled=yes
+
+
+     ### localspace replace
+ 
+    - name: replacing localspace Service
+      template:
+        src: /opt/coreapps/apps/templates/pgui/localspace.service
+        dest: /etc/systemd/system/localspace.service
+        force: yes
+
+    - name: Daemon-Reload
+      systemd: state=stopped name=localspace daemon_reload=yes enabled=no
+
+    - name: Start pgscan
+      systemd: state=started name=localhost enabled=yes
+
 
     # LABELS ######################################################################
     - name: 'Adding Traefik'
