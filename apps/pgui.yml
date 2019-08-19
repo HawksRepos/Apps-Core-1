@@ -142,7 +142,3 @@
               - '{{pgrole}}'
         state: started
         labels: '{{pg_labels}}'
-
-##PG-Core
-
-##PG-Core
