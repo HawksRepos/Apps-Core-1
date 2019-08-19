@@ -251,7 +251,7 @@
     # PLUGINS ####################################################
     - name: 'Including plugins'
       shell: 'bash /opt/coreapps/apps/templates/plex/bundle.sh'
-
+    # rebuild files in lines -name command 
     #- name: 'Including DB Cache Size'
     #  include_tasks: '/opt/coreapps/apps/templates/plex/db_cache_size.yml'
 
