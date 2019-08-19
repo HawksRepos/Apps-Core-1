@@ -12,13 +12,13 @@
 ---
 - name: Wait for Plex DB to be created
   wait_for:
-    path: "/opt/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db"
+    path: "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db"
     state: present
     timeout: 600
 
 - name: Get Current Plex DB Cache Size
   shell: |
-    sqlite3 "/opt/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+    sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
       "PRAGMA default_cache_size;"
   args:
     executable: /bin/bash
@@ -60,14 +60,14 @@
 
   - name: "Set Plex DB Cache Size"
     shell: |
-      sqlite3 "/opt/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+      sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
         "PRAGMA default_cache_size = '{{ desired_db_cache_size | int }}';"
     args:
       executable: /bin/bash
 
   - name: Get New Plex DB Cache Size
     shell: |
-      sqlite3 "/opt/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+      sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
         "PRAGMA default_cache_size;"
     args:
       executable: /bin/bash
