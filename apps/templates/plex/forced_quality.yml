@@ -17,7 +17,7 @@
 
 - name: Wait for 'Preferences.xml' to be created by Plex
   wait_for:
-    path: "/opt/appdata/plex/Library/Application Support/Plex Media Server/Preferences.xml"
+    path: "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml"
     state: present
 
 # 'forceAutoAdjustQuality' in Preferences.xml
@@ -26,7 +26,7 @@
 - name: "Set 'forceAutoAdjustQuality' in 'Preferences.xml' to
     '{{ (plex.force_auto_adjust_quality|default(false,true)) | ternary('Enabled','Disabled') }}'."
   xml:
-    path: "/opt/appdata/plex/Library/Application Support/Plex Media Server/Preferences.xml"
+    path: "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml"
     xpath: /Preferences
     attribute: forceAutoAdjustQuality
     value: "{{ (plex.force_auto_adjust_quality|default(false,true)) | ternary('1','0') }}"
@@ -40,7 +40,7 @@
 - name: "Set 'AllowHighOutputBitrates' in 'Preferences.xml' to
     '{{ (plex.force_high_output_bitrates|default(false,true)) | ternary('Enabled','Disabled') }}'."
   xml:
-    path: "/opt/appdata/plex/Library/Application Support/Plex Media Server/Preferences.xml"
+    path: "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml"
     xpath: /Preferences
     attribute: AllowHighOutputBitrates
     value: "{{ (plex.force_high_output_bitrates|default(false,true)) | ternary('1','0') }}"
