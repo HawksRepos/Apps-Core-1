@@ -4,10 +4,6 @@
 #        repo: https://github.com/username/XXX.git dest:
 #        "/opt/appdata/nzbget/scripts" force: yes
 ################################################################################
----
-- hosts: localhost
-  gather_facts: false
-  tasks:
     - name: Cloning lot of scripts
       git:
         repo: 'https://github.com/clinton-hall/GetScripts.git'
