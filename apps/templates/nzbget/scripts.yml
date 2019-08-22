@@ -1,40 +1,72 @@
-# Title: NZBGet Script adder YML Author: MrDoobPG
-#    - name: Cloning NZBScripts
-#      git:
-#        repo: https://github.com/username/XXX.git dest:
-#        "/opt/appdata/nzbget/scripts" force: yes
-################################################################################
+    - name: creating tmp dir for clones
+      shell: mkdir -p /tmp/nzbget
+
+    - name: Cloning revers_name.py
+      unarchive:
+        src: https://github.com/Prinz23/nzbget-pp-reverse/archive/master.zip
+        dest: /tmp/nzbget
+        keep_newer: no
+        owner: '1000'
+        group: '1000'
+        mode: 0775
+        copy: no
+
+    - name: Cloning Passwort Detector.py
+      unarchive:
+        src: https://github.com/JVMed/PasswordDetector/archive/master.zip
+        dest: /tmp/nzbget
+        keep_newer: no
+        owner: '1000'
+        group: '1000'
+        mode: 0775
+        copy: no
+
+    - name: Cloning Fake Detctor.py
+      unarchive:
+        src: https://github.com/Prinz23/FakeDetector/archive/master.zip
+        dest: /tmp/nzbget
+        keep_newer: no
+        owner: '1000'
+        group: '1000'
+        mode: 0775
+        copy: no
+
     - name: Cloning lot of scripts
-      git:
-        repo: 'https://github.com/clinton-hall/GetScripts.git'
-        dest: '/opt/appdata/nzbget/scripts'
-        clone: yes
-        force: yes
-        update: no
+      unarchive:
+        src: https://github.com/clinton-hall/GetScripts/archive/master.zip
+        dest: /tmp/nzbget
+        keep_newer: no
+        owner: '1000'
+        group: '1000'
+        mode: 0775
+        copy: no
 
-    - name: Cloning FakeDetector.py
-      git:
-        repo: 'https://github.com/Prinz23/FakeDetector.git'
+    - name: passwort detector installing
+      copy:
+        src: '/tmp/nzbget/PasswordDetector-master/'
         dest: '/opt/appdata/nzbget/scripts'
-        clone: yes
         force: yes
-        update: no
 
-    - name: Cloning PasswordDetector.py
-      git:
-        repo: 'https://github.com/JVMed/PasswordDetector.git'
+    - name: revers_master
+      copy:
+        src: '/tmp/nzbget/nzbget-pp-reverse-master/'
         dest: '/opt/appdata/nzbget/scripts'
-        clone: yes
         force: yes
-        update: no
 
-    - name: Cloning reverse_name.py
-      git:
-        repo: 'https://github.com/Prinz23/nzbget-pp-reverse.git'
+    - name: lot of useful scriptss
+      copy:
+        src: '/tmp/nzbget/GetScripts-master/'
         dest: '/opt/appdata/nzbget/scripts'
-        clone: yes
         force: yes
-        update: no
+
+    - name: FakeDetector installing
+      copy:
+       src: '/tmp/nzbget/FakeDetector-master/'
+       dest: '/opt/appdata/nzbget/scripts'
+       force: yes
+
+    - name: remove temp folder
+      shell: rm -rf /tmp/nzbget
 
     # scripts permissions
     - name: 'Setting permissions on scripts'
