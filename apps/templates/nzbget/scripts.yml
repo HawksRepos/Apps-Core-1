@@ -33,6 +33,14 @@
         force: yes
         update: no
 
+    - name: Cloning reverse_name.py
+      git:
+        repo: 'https://github.com/Prinz23/nzbget-pp-reverse.git'
+        dest: '/opt/appdata/nzbget/scripts'
+        clone: yes
+        force: yes
+        update: no
+
     # scripts permissions
     - name: 'Setting permissions on scripts'
       shell: 'chmod -R 775 /opt/appdata/nzbget/scripts'
