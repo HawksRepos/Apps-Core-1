@@ -7,7 +7,6 @@
 ---
 - hosts: localhost
   gather_facts: false
-
   tasks:
     - name: Cloning lot of scripts
       git:
