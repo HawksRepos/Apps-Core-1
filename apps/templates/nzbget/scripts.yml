@@ -1,27 +1,38 @@
-# Title:      NZBGet Script adder
-# YML Author: MrDoobPG
+# Title: NZBGet Script adder YML Author: MrDoobPG
 #    - name: Cloning NZBScripts
 #      git:
-#        repo: https://github.com/username/XXX.git
-#        dest: "/opt/appdata/nzbget/scripts"
-#        force: yes
+#        repo: https://github.com/username/XXX.git dest:
+#        "/opt/appdata/nzbget/scripts" force: yes
 ################################################################################
 ---
 - hosts: localhost
   gather_facts: false
+
   tasks:
-    - name: Cloning NZBScripts
+    - name: Cloning lot of scripts
       git:
-        repo: https://github.com/clinton-hall/GetScripts.git
-        dest: "/opt/appdata/nzbget/scripts"
+        repo: 'https://github.com/clinton-hall/GetScripts.git'
+        dest: '/opt/appdata/nzbget/scripts'
+        clone: yes
         force: yes
+        update: no
 
-    - name: Cloning NZBScripts
+    - name: Cloning FakeDetector.py
       git:
-        repo: https://github.com/Prinz23/FakeDetector.git
-        dest: "/opt/appdata/nzbget/scripts"
+        repo: 'https://github.com/Prinz23/FakeDetector.git'
+        dest: '/opt/appdata/nzbget/scripts'
+        clone: yes
         force: yes
+        update: no
 
-    # scripts permissions 
+    - name: Cloning PasswordDetector.py
+      git:
+        repo: 'https://github.com/JVMed/PasswordDetector.git'
+        dest: '/opt/appdata/nzbget/scripts'
+        clone: yes
+        force: yes
+        update: no
+
+    # scripts permissions
     - name: 'Setting permissions on scripts'
       shell: 'chmod -R 775 /opt/appdata/nzbget/scripts'
