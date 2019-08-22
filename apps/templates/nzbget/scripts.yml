@@ -1,0 +1,27 @@
+# Title:      NZBGet Script adder
+# YML Author: MrDoobPG
+#    - name: Cloning NZBScripts
+#      git:
+#        repo: https://github.com/username/XXX.git
+#        dest: "/opt/appdata/nzbget/scripts"
+#        force: yes
+################################################################################
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Cloning NZBScripts
+      git:
+        repo: https://github.com/clinton-hall/GetScripts.git
+        dest: "/opt/appdata/nzbget/scripts"
+        force: yes
+
+    - name: Cloning NZBScripts
+      git:
+        repo: https://github.com/Prinz23/FakeDetector.git
+        dest: "/opt/appdata/nzbget/scripts"
+        force: yes
+
+    # scripts permissions 
+    - name: 'Setting permissions on scripts'
+      shell: 'chmod -R 775 /opt/appdata/nzbget/scripts'
