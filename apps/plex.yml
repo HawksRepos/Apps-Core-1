@@ -39,7 +39,7 @@
 
     - name: 'Including Kernel job'
         include_tasks: '/opt/plexguide/menu/pg.yml --tags kernel'
-      
+
     - name: 'Including nVidia job'
         include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
 
