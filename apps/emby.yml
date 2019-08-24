@@ -30,12 +30,10 @@
       include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     - name: 'Including Kernel job'
-        include_role: 
-            name: kernel
+        include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
       
     - name: 'Including nVidia job'
-        include_role: 
-            name: nvidia
+        include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
 
     # LABELS ######################################################################
     - name: 'Adding Traefik'
