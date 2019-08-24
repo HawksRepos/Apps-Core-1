@@ -28,10 +28,10 @@
     - name: 'Including folders'
       include_tasks: '/opt/coreapps/apps/_downto.yml'
 
-    - name: 'Including Tasks'
+    - name: 'Including Update task'
       include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
-    - name: 'Including Tasks'
+    - name: 'Including Main Task'
       include_tasks: '/opt/coreapps/apps/templates/rutorrent/tasks/main.yml'
 
     # Tasks ####################################################

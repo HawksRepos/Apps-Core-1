@@ -37,6 +37,21 @@
     - name: 'Including Tasks'
       include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
+    - name: 'Including Kernel job'
+        include_tasks: '/opt/plexguide/menu/pg.yml --tags kernel'
+      
+    - name: 'Including nVidia job'
+        include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
+
+    - name: 'Including Plex DB & adjusting bandwith job'
+        include_tasks: '/opt/plexguide/menu/pg.yml --tags plex'
+
+    - name: 'Including Traktarr-Plugin job'
+        include_tasks: '/opt/plexguide/menu/pg.yml --tags trakttv-plugin'
+
+    - name: 'Including sub-zero-plugin job'
+        include_tasks: '/opt/plexguide/menu/pg.yml --tags sub-zero-plugin'
+
     # FACTS #######################################################################
     - name: 'Plex Server Network Type'
       shell: 'cat /var/plexguide/plex.server'
@@ -50,15 +65,6 @@
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
-
-    - name: 'Including Kernel job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags kernel'
-      
-    - name: 'Including nVidia job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
-
-    - name: 'Including nVidia job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags plex'
 
     ######################################### FOR BOTH
     - name: 'Set Default Labels'
@@ -165,6 +171,7 @@
 
     - debug: msg="plex_advert_ip is {{plex_advert_ip}}"
       when: servertype.stdout == "remote"
+
 
     ########################################## Other
     - name: Check /dev/dri exists
