@@ -65,7 +65,6 @@
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
-          - '/etc/localtime:/etc/localtime:ro'
           - '{{path.stdout}}:{{path.stdout}}'
           - '/mnt:/mnt'
           - '/opt/appdata/{{pgrole}}:/config'
@@ -235,7 +234,3 @@
       docker_container:
         name: '{{pgrole}}'
         state: started
-
-##PG-Core
-
-##PG-Core

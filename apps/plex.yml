@@ -75,7 +75,6 @@
     - name: 'Set Default Volume - {{extension.stdout}}'
       set_fact:
         default_volumes:
-          - '/etc/localtime:/etc/localtime:ro'
           - '{{path.stdout}}:{{path.stdout}}'
           - '/mnt:/mnt'
           - '/opt/appdata/{{pgrole}}/database:/config'

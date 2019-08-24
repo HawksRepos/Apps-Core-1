@@ -62,7 +62,6 @@
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
-          - '/etc/localtime:/etc/localtime:ro'
           - '/opt/appdata/{{pgrole}}:/config'
           - '/opt/appdata/{{pgrole}}/appsettings.json:/opt/{{pgrole}}/appsettings.json'
 
@@ -90,7 +89,3 @@
               - '{{pgrole}}'
         state: started
         labels: '{{pg_labels}}'
-
-##PG-Core
-
-##PG-Core
