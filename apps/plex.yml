@@ -52,13 +52,16 @@
       include_tasks: '/opt/coreapps/apps/_core.yml'
 
     - name: 'Including Kernel job'
-      include_tasks: '/opt/plexguide/menu/pg.yml --tags kernel'
+        include_role: 
+            name: kernel
       
     - name: 'Including nVidia job'
-      include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
-      
-    - name: 'Including PLEX CB fixes job'
-      include_tasks: '/opt/plexguide/menu/pg.yml --tags plex'
+        include_role: 
+            name: nvidia
+
+    - name: 'Including nVidia job'
+        include_role: 
+            name: plex
 
     ######################################### FOR BOTH
     - name: 'Set Default Labels'
