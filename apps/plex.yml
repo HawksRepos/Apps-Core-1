@@ -37,20 +37,20 @@
     - name: 'Including Tasks'
       include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
-    - name: 'Including Kernel job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags kernel'
+    - name: 'Including Task job'
+      include_tasks: '/opt/plexguide/menu/pg.yml --tags kernel'
 
     - name: 'Including nVidia job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
+      include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
 
     - name: 'Including Plex DB & adjusting bandwith job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags plex'
+      include_tasks: '/opt/plexguide/menu/pg.yml --tags plex'
 
     - name: 'Including Traktarr-Plugin job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags trakttv-plugin'
+      include_tasks: '/opt/plexguide/menu/pg.yml --tags trakttv-plugin'
 
     - name: 'Including sub-zero-plugin job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags sub-zero-plugin'
+      include_tasks: '/opt/plexguide/menu/pg.yml --tags sub-zero-plugin'
 
     # FACTS #######################################################################
     - name: 'Plex Server Network Type'
