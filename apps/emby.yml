@@ -26,8 +26,14 @@
         path: /opt/appdata/{{pgrole}}/config/system.xml
       register: xmlcheck
 
-    - name: 'Including Tasks'
+    - name: 'Including Updates'
       include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
+
+    - name: 'Including Kernel job'
+      include_tasks: '/opt/plexguide/menu/pg.yml --tags kernel'
+      
+    - name: 'Including nVidia job'
+      include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
 
     # LABELS ######################################################################
     - name: 'Adding Traefik'
@@ -60,6 +66,8 @@
           UID: '1000'
           GID: '1000'
           GIDLIST: '1000'
+          NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if gpu.nvidia | default(false) else omit }}"
+          NVIDIA_VISIBLE_DEVICES: "{{ 'all' if gpu.nvidia | default(false) else omit }}"
 
     # MAIN DEPLOYMENT #############################################################
     - name: 'Check'
@@ -74,7 +82,7 @@
         pull: yes
         published_ports:
           - '{{ports.stdout}}{{extport}}:{{intport}}'
-        devices: "{{ '/dev/dri:/dev/dri' if dev_dri.stat.exists == True | default(false) else omit }}"
+        devices: "{{ '/dev/dri:/dev/dri' if (gpu.intel and dev_dri.stat.exists) | default(false) else omit }}"
         volumes: '{{pg_volumes}}'
         env: '{{pg_env}}'
         restart_policy: unless-stopped
