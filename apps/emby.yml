@@ -29,12 +29,6 @@
     - name: 'Including Updates'
       include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
-    - name: 'Including Kernel job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags kernel'
-      
-    - name: 'Including nVidia job'
-        include_tasks: '/opt/plexguide/menu/pg.yml --tags nvidia'
-
     # LABELS ######################################################################
     - name: 'Adding Traefik'
       set_fact:
