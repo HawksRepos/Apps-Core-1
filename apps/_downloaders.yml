@@ -7,6 +7,4 @@
   with_items:
     - '{{path.stdout}}/incomplete/{{pgrole}}'
 
-##PG-Core
 
-##PG-Core
