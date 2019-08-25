@@ -198,6 +198,8 @@
           PLEX_GID: '1000'
           PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
+          NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
+          NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
         purge_networks: yes
         networks:
           - name: plexguide
@@ -234,6 +236,8 @@
           PLEX_UID: '1000'
           PLEX_GID: '1000'
           ADVERTISE_IP: '{{customConnections}}'
+          NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
+          NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
         networks:
           - name: plexguide
             aliases:
