@@ -107,9 +107,8 @@
         name: '{{pgrole}}'
         state: stopped
 
-    - name: 'rTorrent.rc Task'
+    - name: 'Including Main Task'
       include_tasks: '/opt/coreapps/apps/templates/rutorrent/tasks/main.yml'
-
 
     # This is needed for rutorrent b/c it's weird.
     - name: 'Setting ownership on appdata recursivley (this can take a while!)'
