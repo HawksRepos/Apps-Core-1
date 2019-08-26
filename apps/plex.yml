@@ -198,8 +198,6 @@
           PLEX_GID: '1000'
           PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
-          NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
-          NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
         purge_networks: yes
         networks:
           - name: plexguide
@@ -236,8 +234,6 @@
           PLEX_UID: '1000'
           PLEX_GID: '1000'
           ADVERTISE_IP: '{{customConnections}}'
-          NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
-          NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
         networks:
           - name: plexguide
             aliases:
@@ -254,12 +250,6 @@
     # PLUGINS ####################################################
     - name: 'Including plugins'
       shell: 'bash /opt/coreapps/apps/templates/plex/bundle.sh'
-    # rebuild files in lines -name command 
-    #- name: 'Including DB Cache Size'
-    #  include_tasks: '/opt/coreapps/apps/templates/plex/db_cache_size.yml'
-
-    #- name: 'Including DB Cache Size'
-    #  include_tasks: '/opt/coreapps/apps/templates/plex/forced_quality.yml'
 
     - debug: msg="Final Notes - Remote Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Token {{claim.stdout}}"
       when: servertype.stdout == "remote"
