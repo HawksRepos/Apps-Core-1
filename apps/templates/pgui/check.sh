@@ -27,8 +27,6 @@ else echo "stupid line"
 
 fi
 
-
-
 rcversion="$(curl -s https://api.github.com/repos/rclone/rclone/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')"
 touch /var/plexguide/checkers/rclonestored.log
 touch /var/plexguide/checkers/rclone.log
