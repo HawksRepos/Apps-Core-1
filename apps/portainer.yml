@@ -15,14 +15,11 @@
         pgrole: 'portainer'
         intport: '9000'
         extport: '9000'
-        image: 'portainer/portainer:latest'
+        image: 'portainer/portainer'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
-
-    - name: 'Including Tasks'
-      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     # LABELS ######################################################################
     - name: 'Adding Traefik'
@@ -45,6 +42,7 @@
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
+          - '/etc/localtime:/etc/localtime:ro'
           - '/opt/appdata/{{pgrole}}:/data'
           - '/var/run/docker.sock:/var/run/docker.sock'
 
