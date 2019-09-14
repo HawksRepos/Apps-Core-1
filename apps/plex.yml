@@ -177,74 +177,7 @@
         customConnections: 'none'
       when: customConnections is undefined
 
-    - name: Get Current Plex DB Cache Size
-      shell: |
-        sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
-        "PRAGMA default_cache_size;"
-      args:
-        executable: /bin/bash
-      register: current_db_cache_size
-
-    - name: Set 'default_db_cache_size' variable
-      set_fact:
-        default_db_cache_size: '2000'
-
-    - name: Check if 'plex.db_cache_size' was specified
-      set_fact:
-        db_cache_size_is_specified: "{{ true if not (
-            (plex.db_cache_size is undefined)
-            or
-            (plex.db_cache_size is none)
-            or
-            (plex.db_cache_size | trim | length == 0)
-          )
-          else false }}"
-
-    - name: Get Desired Plex DB Cache Size
-      set_fact:
-        desired_db_cache_size: "{{ default_db_cache_size
-          if ( (not db_cache_size_is_specified) or (plex.db_cache_size == 'default') )
-          else ( (plex.db_cache_size) | regex_replace(',', '') | int ) }}"
-
-    - name: Make Plex DB Edits
-      block:
-
-      - name: Stop Plex Container
-        docker_container:
-          name: plex
-          state: stopped
-        when: ('plex_db_cache_size' in ansible_run_tags)
-
-      - name: Display Desired Plex DB Cache Size
-        debug:
-          msg: "Desired Plex DB Cache Size is '{{ desired_db_cache_size }}'"
-
-      - name: "Set Plex DB Cache Size"
-        shell: |
-          sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
-            "PRAGMA default_cache_size = '{{ desired_db_cache_size | int }}';"
-        args:
-          executable: /bin/bash
-
-      - name: Get New Plex DB Cache Size
-        shell: |
-          sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
-            "PRAGMA default_cache_size;"
-        args:
-          executable: /bin/bash
-        register: new_db_cache_size
-
-      - name: Display New Plex DB Cache Size
-        debug:
-          msg: "Plex DB cache size is now set to '{{ new_db_cache_size.stdout | int }}'."
-
-      - name: Start Plex Container
-        docker_container:
-          name: plex
-          state: started
-        when: ('plex_db_cache_size' in ansible_run_tags)
-
-    ######################################### DEPLOY PLEX REMOTE (ANSWER 2)
+######################################### DEPLOY PLEX REMOTE (ANSWER 2)
     - name: Deploy Plex Container (Remote Edition)
       docker_container:
         name: plex
@@ -376,6 +309,72 @@
       when:
         - stat_result_openmovie.stat.exists == False    
 
+    - name: Get Current Plex DB Cache Size
+      shell: |
+        sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+        "PRAGMA default_cache_size;"
+      args:
+        executable: /bin/bash
+      register: current_db_cache_size
+
+    - name: Set 'default_db_cache_size' variable
+      set_fact:
+        default_db_cache_size: '2000'
+
+    - name: Check if 'plex.db_cache_size' was specified
+      set_fact:
+        db_cache_size_is_specified: "{{ true if not (
+            (plex.db_cache_size is undefined)
+            or
+            (plex.db_cache_size is none)
+            or
+            (plex.db_cache_size | trim | length == 0)
+          )
+          else false }}"
+
+    - name: Get Desired Plex DB Cache Size
+      set_fact:
+        desired_db_cache_size: "{{ default_db_cache_size
+          if ( (not db_cache_size_is_specified) or (plex.db_cache_size == 'default') )
+          else ( (plex.db_cache_size) | regex_replace(',', '') | int ) }}"
+
+    - name: Make Plex DB Edits
+      block:
+
+      - name: Stop Plex Container
+        docker_container:
+          name: plex
+          state: stopped
+        when: ('plex_db_cache_size' in ansible_run_tags)
+
+      - name: Display Desired Plex DB Cache Size
+        debug:
+          msg: "Desired Plex DB Cache Size is '{{ desired_db_cache_size }}'"
+
+      - name: "Set Plex DB Cache Size"
+        shell: |
+          sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+            "PRAGMA default_cache_size = '{{ desired_db_cache_size | int }}';"
+        args:
+          executable: /bin/bash
+
+      - name: Get New Plex DB Cache Size
+        shell: |
+          sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+            "PRAGMA default_cache_size;"
+        args:
+          executable: /bin/bash
+        register: new_db_cache_size
+
+      - name: Display New Plex DB Cache Size
+        debug:
+          msg: "Plex DB cache size is now set to '{{ new_db_cache_size.stdout | int }}'."
+
+      - name: Start Plex Container
+        docker_container:
+          name: plex
+          state: started
+        when: ('plex_db_cache_size' in ansible_run_tags)
       #### EOF Bundle ADD
 
     - debug: msg="Final Notes - Remote Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Token {{claim.stdout}}"
