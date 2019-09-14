@@ -309,6 +309,15 @@
       when:
         - stat_result_openmovie.stat.exists == False    
 
+    - name: "Install package for Plex-DB Cache size Fix"
+      apt:
+        name: "{{ packages }}"
+        state: latest
+        update_cache: yes
+      vars:
+        packages:
+        - sqlite3
+
     - name: Get Current Plex DB Cache Size
       shell: |
         sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
