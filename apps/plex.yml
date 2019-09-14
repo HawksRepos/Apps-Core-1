@@ -258,8 +258,7 @@
     - name: Clone Radarr.Bundle
       git:
         repo: 'https://github.com/piplongrun/Radarr.bundle.git'
-        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/'
-        version: 'master'
+        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Radarr.bundle'
         force: yes
       when:
         - stat_result_radarr.stat.exists == False
@@ -273,8 +272,7 @@
     - name: Clone Sonarr.Bundle
       git:
         repo: 'https://github.com/piplongrun/Sonarr.bundle.git'
-        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/'
-        version: 'master'
+        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Sonarr.bundle'
         force: yes
       when:
         - stat_result_sonarr.stat.exists == False
@@ -288,8 +286,7 @@
     - name: Clone Hama.Bundle
       git:
         repo: 'https://github.com/ZeroQI/Hama.bundle.git'
-        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/'
-        version: 'master'
+        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
         force: yes
       when:
         - stat_result_hama.stat.exists == False        
@@ -303,8 +300,7 @@
     - name: Clone OpenMovieDatabase.Bundle
       git:
         repo: 'https://github.com/piplongrun/OpenMovieDatabase.bundle.git'
-        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/'
-        version: 'master'
+        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/OpenMovieDatabase.bundle'
         force: yes
       when:
         - stat_result_openmovie.stat.exists == False    
