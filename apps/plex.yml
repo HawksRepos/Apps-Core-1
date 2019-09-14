@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ansible-playbook
 #
 # Title:      plex-docker
 # Author(s):  Admin9705
