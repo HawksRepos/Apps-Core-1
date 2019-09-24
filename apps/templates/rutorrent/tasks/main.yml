@@ -161,7 +161,7 @@
 ##index.html fix
   - name: Settings  Import custom 'Index.html'
     copy:
-      src: '/opt/coreapps/apps/templates/rutorrent/rutorrent/www/index.html'
+      src: '/opt/coreapps/apps/templates/rutorrent/www/index.html'
       dest: '/opt/appdata/{{pgrole}}/rutorrent/www/index.html'
       mode: 0775
       force: yes
