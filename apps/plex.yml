@@ -195,13 +195,13 @@
         path: '/dev/dri'
       register: dev_dri
 
-    - name: Edit HardwareAcceleratedCodecs 
-      xml:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
-        xpath: /Preferences
-        attribute: HardwareAcceleratedCodecs
-        value: '1'
-      when: dev_dri.stat.exists
+#    - name: Edit HardwareAcceleratedCodecs 
+#      xml:
+#        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+#        xpath: /Preferences
+#        attribute: HardwareAcceleratedCodecs
+#        value: '1'
+#      when: dev_dri.stat.exists
 
     - name: Create Transcodes Directory
       file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
