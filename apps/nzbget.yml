@@ -1,8 +1,6 @@
-#!/bin/bash
 #
-# Title:      PGBlitz (Reference Title File)
-# Author(s):  Admin9705
-# URL:        https://pgblitz.com - http://github.pgblitz.com
+# Title:      NZBGet 
+# Author(s):  FUU off Brandings 
 # GNU:        General Public License v3.0
 #################################################################################
 ---
@@ -16,14 +14,14 @@
         pgrole: 'nzbget'
         intport: '6789'
         extport: '6789'
-        image: 'linuxserver/nzbget'
+        image: 'linuxserver/nzbget:latest'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
 
     - name: 'Including folders'
-      include_tasks: '/opt/coreapps/apps/_downloaders.yml'
+      include_tasks: '/opt/coreapps/apps/_downnzb.yml'
 
     - name: Create nzb folder
       file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
@@ -38,22 +36,34 @@
         path: /opt/appdata/{{pgrole}}/nzbget.conf
       register: confcheck
 
+    - name: 'Including Tasks'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
+
     # LABELS ######################################################################
     - name: 'Adding Traefik'
       set_fact:
         pg_labels:
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
-          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}},{{tldset}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
+          traefik.frontend.headers.SSLHost: '{{domain.stdout}}'
+          traefik.frontend.headers.SSLRedirect: 'true'
+          traefik.frontend.headers.STSIncludeSubdomains: 'true'
+          traefik.frontend.headers.STSPreload: 'true'
+          traefik.frontend.headers.STSSeconds: '315360000'
+          traefik.frontend.headers.browserXSSFilter: 'true'
+          traefik.frontend.headers.contentTypeNosniff: 'true'
+          traefik.frontend.headers.customResponseHeaders: 'X-Robots-Tag:noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
+          traefik.frontend.headers.forceSTSHeader: 'true'
+
           traefik.frontend.auth.forward.address: '{{gauth}}'
 
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
-          - '/etc/localtime:/etc/localtime:ro'
-          - '/opt/appdata/{{pgrole}}:/config'
           - '{{path.stdout}}:{{path.stdout}}'
           - '/mnt:/mnt'
+          - '/opt/appdata/{{pgrole}}:/config'
           - '/tmp:/tmp'
 
     - name: 'Setting PG ENV'
@@ -87,7 +97,7 @@
         path: '/opt/appdata/{{pgrole}}/nzbget.conf'
         state: present
         delay: 5
-        
+
     - name: 'Stopping {{pgrole}}'
       docker_container:
         name: '{{pgrole}}'
@@ -104,14 +114,14 @@
       lineinfile:
         path: '/opt/appdata/{{pgrole}}/nzbget.conf'
         regexp: '^DestDir\s*=.*'
-        line: 'DestDir={{path.stdout}}/downloads/{{pgrole}}'
+        line: 'DestDir={{path.stdout}}/downloads/nzb'
         state: present
 
     - name: Set incomplete location
       lineinfile:
         path: '/opt/appdata/{{pgrole}}/nzbget.conf'
         regexp: '^InterDir\s*=.*'
-        line: 'InterDir={{path.stdout}}/incomplete/{{pgrole}}'
+        line: 'InterDir={{path.stdout}}/incomplete/nzb'
         state: present
 
     - name: Set TempDir
@@ -134,6 +144,10 @@
         regexp: '^ScriptDir\s*=.*'
         line: 'ScriptDir=${MainDir}/scripts'
         state: present
+
+    #  Cloning Scripts 
+    - name: 'Including Tasks'
+      include_tasks: '/opt/coreapps/apps/templates/nzbget/scripts.yml'
 
     # FIRST TIME CONFIGURATION #############################################################
     - name: 'Configuring {{pgrole}} for first time use'

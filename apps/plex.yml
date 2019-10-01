@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/bin/ansible-playbook
 #
-# Title:      PGBlitz (Reference Title File)
+# Title:      plex-docker
 # Author(s):  Admin9705
+# Moded:      MrDoob for ptS-Comm
 # URL:        https://pgblitz.com - http://github.pgblitz.com
 # GNU:        General Public License v3.0
 ################################################################################
@@ -27,14 +28,14 @@
         extport6: '32413'
         intport7: '32414/udp'
         extport7: '32414'
-        intport8: '33400/tcp'
-        extport8: '33400'
-        intport9: '33443/tcp'
-        extport9: '33443'
+        image: 'plexinc/pms-docker:latest'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
+
+    - name: 'Including Tasks'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     # FACTS #######################################################################
     - name: 'Plex Server Network Type'
@@ -46,10 +47,6 @@
       register: claim
       when: servertype.stdout == "remote"
 
-    - name: Register Extension Type
-      shell: 'cat /var/plexguide/plex.extension'
-      register: extension
-
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
@@ -60,19 +57,26 @@
         default_labels:
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
-          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}},{{tldset}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
+          traefik.frontend.headers.SSLHost: '{{domain.stdout}}'
+          traefik.frontend.headers.SSLRedirect: 'true'
+          traefik.frontend.headers.STSIncludeSubdomains: 'true'
+          traefik.frontend.headers.STSPreload: 'true'
+          traefik.frontend.headers.STSSeconds: '315360000'
+          traefik.frontend.headers.browserXSSFilter: 'true'
+          traefik.frontend.headers.contentTypeNosniff: 'true'
+          traefik.frontend.headers.customResponseHeaders: 'X-Robots-Tag:noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
+          traefik.frontend.headers.forceSTSHeader: 'true'
 
-    - name: 'Set Default Volume - {{extension.stdout}}'
+    - name: 'Set Default Volume - {{ extension.stdout }}'
       set_fact:
         default_volumes:
-          - '/tmp:/tmp'
+          - '{{path.stdout}}:{{path.stdout}}'
           - '/mnt:/mnt'
-          - '/opt/appdata/plex/database:/config'
+          - '/opt/appdata/{{pgrole}}/database:/config'
+          - '/tmp:/tmp'
           - '/opt/transcodes:/transcode'
           - '/dev/shm:/ram_transcode'
-          - '{{path.stdout}}:{{path.stdout}}'
-          - '/etc/localtime:/etc/localtime:ro'
-          - '/mnt/unionfs:/unionfs'
 
     - name: 'Establish Key Variables'
       set_fact:
@@ -134,6 +138,38 @@
       when:
         - plex_prefs.stat.exists == False
 
+    - name: Edit GenerateChapterThumbBehavior to never
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: GenerateChapterThumbBehavior
+        value: 'never'
+      when: plex_prefs.stat.exists
+
+    - name: Edit LoudnessAnalysisBehavior to never
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: LoudnessAnalysisBehavior
+        value: 'never'
+      when: plex_prefs.stat.exists
+
+    - name: Edit MinutesAllowedPaused to max 10min
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: MinutesAllowedPaused
+        value: '10'
+      when: plex_prefs.stat.exists
+
+    - name: Edit DlnaEnabled to disable 
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: DlnaEnabled
+        value: 'p'
+      when: plex_prefs.stat.exists
+
     - name: 'Get Plex Custom URL'
       shell: 'echo https://plex.{{domain.stdout}}:443,http://plex.{{domain.stdout}}:80'
       register: plex_url
@@ -159,6 +195,14 @@
         path: '/dev/dri'
       register: dev_dri
 
+    - name: Edit HardwareAcceleratedCodecs 
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: HardwareAcceleratedCodecs
+        value: '1'
+      when: dev_dri.stat.exists
+
     - name: Create Transcodes Directory
       file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
       with_items:
@@ -173,7 +217,7 @@
     - name: Deploy Plex Container (Remote Edition)
       docker_container:
         name: plex
-        image: 'plexinc/pms-docker:{{extension.stdout}}'
+        image: '{{image}}'
         pull: yes
         published_ports:
           - '{{extport}}:{{intport}}'
@@ -183,8 +227,6 @@
           - '{{ports.stdout}}{{extport5}}:{{intport5}}'
           - '{{ports.stdout}}{{extport6}}:{{intport6}}'
           - '{{ports.stdout}}{{extport7}}:{{intport7}}'
-          - '{{ports.stdout}}{{extport8}}:{{intport8}}'
-          - '{{ports.stdout}}{{extport9}}:{{intport9}}'
         env:
           PLEX_UID: '1000'
           PLEX_GID: '1000'
@@ -208,7 +250,7 @@
     - name: Deploy Plex Container (Local Edition)
       docker_container:
         name: plex
-        image: 'plexinc/pms-docker:{{extension.stdout}}'
+        image: '{{image}}'
         pull: yes
         published_ports:
           - '32400:32400/tcp'
@@ -220,8 +262,6 @@
           - '32412:32412/udp'
           - '32413:32413/udp'
           - '32414:32414/udp'
-          - '33400:33400/tcp'
-          - '33443:33443/tcp'
         env:
           PLEX_UID: '1000'
           PLEX_GID: '1000'
@@ -239,36 +279,141 @@
         labels: '{{default_labels}}'
       when: servertype.stdout == "local"
 
-    ###################### Plex WebTools
-    - name: Check WebTools
+    # PLUGINS ####################################################
+      #/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins
+     ####Radarr Bundle
+    - name: Check Radarr.Bundle exist
       stat:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/WebTools.bundle'
-      register: webtools
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Radarr.bundle'
+      register: stat_result_radarr
 
-    - name: Create Basic Directories
-      file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
-      with_items:
-        - '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/WebTools.bundle'
+    - name: Clone Radarr.Bundle
+      git:
+        repo: 'https://github.com/piplongrun/Radarr.bundle.git'
+        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Radarr.bundle'
+        force: yes
       when:
-        - webtools.stat.exists == False
+        - stat_result_radarr.stat.exists == False
 
-    - name: Installing WebTools
-      unarchive:
-        src: https://github.com/ukdtom/WebTools.bundle/releases/download/3.0.0/WebTools.bundle.zip
-        dest: /opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins
-        keep_newer: no
-        owner: '1000'
-        group: '1000'
-        mode: 0775
-        copy: no
-      when:
-        - webtools.stat.exists == False
+     ####Sonarr Bundle
+    - name: Check Sonarr.Bundle exist
+      stat:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Sonarr.bundle'
+      register: stat_result_sonarr
 
-    - name: Notify User
-      pause:
-        prompt: "\nWebTools Installed! [PRESS ENTER] to Continue"
+    - name: Clone Sonarr.Bundle
+      git:
+        repo: 'https://github.com/piplongrun/Sonarr.bundle.git'
+        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Sonarr.bundle'
+        force: yes
       when:
-        - webtools.stat.exists == False
+        - stat_result_sonarr.stat.exists == False
+
+     ####Hama Bundle
+    - name: Check Hama.Bundle exist
+      stat:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
+      register: stat_result_hama
+
+    - name: Clone Hama.Bundle
+      git:
+        repo: 'https://github.com/ZeroQI/Hama.bundle.git'
+        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
+        force: yes
+      when:
+        - stat_result_hama.stat.exists == False        
+
+     ####OpenMovieDatabase Bundle
+    - name: Check OpenMovieDatabase.Bundle exist
+      stat:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/OpenMovieDatabase.bundle'
+      register: stat_result_openmovie
+
+    - name: Clone OpenMovieDatabase.Bundle
+      git:
+        repo: 'https://github.com/piplongrun/OpenMovieDatabase.bundle.git'
+        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/OpenMovieDatabase.bundle'
+        force: yes
+      when:
+        - stat_result_openmovie.stat.exists == False    
+      #### EOF Bundle ADD
+
+     ##### db EDITS 
+    - name: "Install package for Plex-DB Cache size Fix"
+      apt:
+        name: "{{ packages }}"
+        state: latest
+        update_cache: yes
+      vars:
+        packages:
+        - sqlite3
+
+    - name: Get Current Plex DB Cache Size
+      shell: |
+        sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+        "PRAGMA default_cache_size;"
+      args:
+        executable: /bin/bash
+      register: current_db_cache_size
+
+#    - name: Set 'default_db_cache_size' variable
+#      set_fact:
+#        default_db_cache_size: '2000'
+#
+#    - name: Check if 'plex.db_cache_size' was specified
+#      set_fact:
+#        db_cache_size_is_specified: "{{ true if not (
+#            (plex.db_cache_size is undefined)
+#            or
+#            (plex.db_cache_size is none)
+#            or
+#            (plex.db_cache_size | trim | length == 0)
+#          )
+#          else false }}"
+#
+#    - name: Get Desired Plex DB Cache Size
+#      set_fact:
+#        desired_db_cache_size: "{{ default_db_cache_size
+#          if ( (not db_cache_size_is_specified) or (plex.db_cache_size == 'default') )
+#          else ( (plex.db_cache_size) | regex_replace(',', '') | int ) }}"
+
+    - name: Make Plex DB Edits
+      block:
+
+      - name: Stop Plex Container
+        docker_container:
+          name: plex
+          state: stopped
+        when: ('plex_db_cache_size' in ansible_run_tags)
+
+      - name: Display Desired Plex DB Cache Size
+        debug:
+          msg: "Desired Plex DB Cache Size is 300000"
+
+      - name: "Set Plex DB Cache Size"
+        shell: |
+          sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+            "PRAGMA default_cache_size = 300000;"
+        args:
+          executable: /bin/bash
+
+      - name: Get New Plex DB Cache Size
+        shell: |
+          sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+            "PRAGMA default_cache_size;"
+        args:
+          executable: /bin/bash
+        register: new_db_cache_size
+
+      - name: Display New Plex DB Cache Size
+        debug:
+          msg: "Plex DB cache size is now set to '{{ new_db_cache_size.stdout | int }}'."
+
+      - name: Start Plex Container
+        docker_container:
+          name: plex
+          state: started
+        #when: ('plex_db_cache_size' in ansible_run_tags)
 
     - debug: msg="Final Notes - Remote Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Token {{claim.stdout}}"
       when: servertype.stdout == "remote"

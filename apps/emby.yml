@@ -25,24 +25,34 @@
       stat:
         path: /opt/appdata/{{pgrole}}/config/system.xml
       register: xmlcheck
-      
+
+    - name: 'Including Updates'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
+
     # LABELS ######################################################################
     - name: 'Adding Traefik'
       set_fact:
         pg_labels:
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
-          traefik.frontend.auth.forward.address: '{{gauth}}'
-          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}},{{tldset}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
+          traefik.frontend.headers.SSLHost: '{{domain.stdout}}'
+          traefik.frontend.headers.SSLRedirect: 'true'
+          traefik.frontend.headers.STSIncludeSubdomains: 'true'
+          traefik.frontend.headers.STSPreload: 'true'
+          traefik.frontend.headers.STSSeconds: '315360000'
+          traefik.frontend.headers.browserXSSFilter: 'true'
+          traefik.frontend.headers.contentTypeNosniff: 'true'
+          traefik.frontend.headers.customResponseHeaders: 'X-Robots-Tag:noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
+          traefik.frontend.headers.forceSTSHeader: 'true'
 
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
-          - /etc/localtime:/etc/localtime:ro
-          - /opt/appdata/{{pgrole}}:/config
           - '{{path.stdout}}:{{path.stdout}}'
           - '/mnt:/mnt'
-          - '/mnt/unionfs:/unionfs'
+          - '/opt/appdata/{{pgrole}}:/config'
+          - '/opt/transcodes:/transcode'
 
     - name: 'Setting PG ENV'
       set_fact:
@@ -50,8 +60,15 @@
           UID: '1000'
           GID: '1000'
           GIDLIST: '1000'
+          NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if gpu.nvidia | default(false) else omit }}"
+          NVIDIA_VISIBLE_DEVICES: "{{ 'all' if gpu.nvidia | default(false) else omit }}"
 
     # MAIN DEPLOYMENT #############################################################
+    - name: 'Check'
+      stat:
+        path: '/dev/dri'
+      register: dev_dri
+
     - name: 'Deploying {{pgrole}}'
       docker_container:
         name: '{{pgrole}}'
@@ -59,6 +76,7 @@
         pull: yes
         published_ports:
           - '{{ports.stdout}}{{extport}}:{{intport}}'
+        devices: "{{ '/dev/dri:/dev/dri' if dev_dri.stat.exists == True | default(false) else omit }}"
         volumes: '{{pg_volumes}}'
         env: '{{pg_env}}'
         restart_policy: unless-stopped
@@ -73,29 +91,28 @@
     # FIRST TIME CONFIGURATION ###########################################################
     - name: 'Configuring {{pgrole}} for first time use'
       block:
+        - name: 'Pending XML Generation'
+          wait_for:
+            path: '/opt/appdata/{{pgrole}}/config/system.xml'
+            state: present
 
-      - name: 'Pending XML Generation'
-        wait_for:
-          path: '/opt/appdata/{{pgrole}}/config/system.xml'
-          state: present
+        - name: 'Wait 5 Seconds'
+          wait_for:
+            timeout: 5
 
-      - name: 'Wait 5 Seconds'
-        wait_for:
-          timeout: 5
+        - name: 'Stop {{pgrole}}'
+          docker_container:
+            name: '{{pgrole}}'
+            state: stopped
 
-      - name: 'Stop {{pgrole}}'
-        docker_container:
-          name: '{{pgrole}}'
-          state: stopped
+        - name: 'Turn Off Reporting'
+          xml:
+            path: '/opt/appdata/{{pgrole}}/config/system.xml'
+            xpath: /ServerConfiguration/EnableAnonymousUsageReporting
+            value: 'false'
 
-      - name: 'Turn Off Reporting'
-        xml:
-          path: '/opt/appdata/{{pgrole}}/config/system.xml'
-          xpath: /ServerConfiguration/EnableAnonymousUsageReporting
-          value: 'false'
-
-      - name: 'Restart {{pgrole}}'
-        docker_container:
-          name: '{{pgrole}}'
-          state: started
+        - name: 'Restart {{pgrole}}'
+          docker_container:
+            name: '{{pgrole}}'
+            state: started
       when: not xmlcheck.stat.exists

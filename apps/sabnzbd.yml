@@ -23,20 +23,23 @@
       include_tasks: '/opt/coreapps/apps/_core.yml'
 
     - name: 'Including folders'
-      include_tasks: '/opt/coreapps/apps/_downloaders.yml'
+      include_tasks: '/opt/coreapps/apps/_downnzb.yml'
 
     - name: Create nzb folder
       file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
       with_items:
-        - '{{path.stdout}}/nzb'
-        - '{{path.stdout}}/nzb/watch'
+        - '{{path.stdout}}/nzb/backups'
+        - '{{path.stdout}}/nzb/backups/watch'
 
     - name: 'Including plugins'
       include_tasks: '/opt/coreapps/apps/_plugins.yml'
 
+    - name: 'Including Tasks'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
+
     - name: 'Checking for existing app data'
       stat:
-        path: /opt/appdata/sabnzbd/sabnzbd.ini
+        path: /opt/appdata/{{pgrole}}/sabnzbd.ini
       register: inicheck
 
     # LABELS ######################################################################
@@ -46,15 +49,25 @@
         pg_labels:
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
-          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}},{{tldset}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
+          traefik.frontend.headers.SSLHost: '{{domain.stdout}}'
+          traefik.frontend.headers.SSLRedirect: 'true'
+          traefik.frontend.headers.STSIncludeSubdomains: 'true'
+          traefik.frontend.headers.STSPreload: 'true'
+          traefik.frontend.headers.STSSeconds: '315360000'
+          traefik.frontend.headers.browserXSSFilter: 'true'
+          traefik.frontend.headers.contentTypeNosniff: 'true'
+          traefik.frontend.headers.customResponseHeaders: 'X-Robots-Tag:noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
+          traefik.frontend.headers.forceSTSHeader: 'true'
+
           traefik.frontend.auth.forward.address: '{{gauth}}'
 
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
-          - '/etc/localtime:/etc/localtime:ro'
-          - '/opt/appdata/{{pgrole}}:/config'
           - '{{path.stdout}}:{{path.stdout}}'
+          - '/mnt:/mnt'
+          - '/opt/appdata/{{pgrole}}:/config'
 
     - name: 'Setting PG ENV'
       set_fact:
@@ -87,7 +100,7 @@
         path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
         state: present
         delay: 5
-        
+
     - name: 'Stopping {{pgrole}}'
       docker_container:
         name: '{{pgrole}}'
@@ -98,7 +111,7 @@
         path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
         section: misc
         option: download_dir
-        value: '{{path.stdout}}/incomplete/{{pgrole}}'
+        value: '{{path.stdout}}/incomplete/nzb'
         state: present
 
     - name: Set complete_dir
@@ -106,7 +119,7 @@
         path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
         section: misc
         option: complete_dir
-        value: '{{path.stdout}}/downloads/{{pgrole}}'
+        value: '{{path.stdout}}/downloads/nzb'
         state: present
 
     - name: Set nzb watch location
@@ -114,7 +127,7 @@
         path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
         section: misc
         option: dirscan_dir
-        value: '{{path.stdout}}/nzb/watch'
+        value: '{{path.stdout}}/nzb/backups/watch'
         state: present
 
     - name: Set nzb backup location
