@@ -138,38 +138,6 @@
       when:
         - plex_prefs.stat.exists == False
 
-    - name: Edit GenerateChapterThumbBehavior to never
-      xml:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
-        xpath: /Preferences
-        attribute: GenerateChapterThumbBehavior
-        value: 'never'
-      when: plex_prefs.stat.exists
-
-    - name: Edit LoudnessAnalysisBehavior to never
-      xml:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
-        xpath: /Preferences
-        attribute: LoudnessAnalysisBehavior
-        value: 'never'
-      when: plex_prefs.stat.exists
-
-    - name: Edit MinutesAllowedPaused to max 10min
-      xml:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
-        xpath: /Preferences
-        attribute: MinutesAllowedPaused
-        value: '10'
-      when: plex_prefs.stat.exists
-
-    - name: Edit DlnaEnabled to disable 
-      xml:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
-        xpath: /Preferences
-        attribute: DlnaEnabled
-        value: 'p'
-      when: plex_prefs.stat.exists
-
     - name: 'Get Plex Custom URL'
       shell: 'echo https://plex.{{domain.stdout}}:443,http://plex.{{domain.stdout}}:80'
       register: plex_url
@@ -195,14 +163,6 @@
         path: '/dev/dri'
       register: dev_dri
 
-    - name: Edit HardwareAcceleratedCodecs 
-      xml:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
-        xpath: /Preferences
-        attribute: HardwareAcceleratedCodecs
-        value: '1'
-      when: dev_dri.stat.exists
-
     - name: Create Transcodes Directory
       file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
       with_items:
@@ -213,7 +173,7 @@
         customConnections: 'none'
       when: customConnections is undefined
 
-    ######################################### DEPLOY PLEX REMOTE (ANSWER 2)
+######################################### DEPLOY PLEX REMOTE (ANSWER 2)
     - name: Deploy Plex Container (Remote Edition)
       docker_container:
         name: plex
@@ -336,9 +296,7 @@
         force: yes
       when:
         - stat_result_openmovie.stat.exists == False    
-      #### EOF Bundle ADD
 
-     ##### db EDITS 
     - name: "Install package for Plex-DB Cache size Fix"
       apt:
         name: "{{ packages }}"
@@ -356,26 +314,26 @@
         executable: /bin/bash
       register: current_db_cache_size
 
-#    - name: Set 'default_db_cache_size' variable
-#      set_fact:
-#        default_db_cache_size: '2000'
-#
-#    - name: Check if 'plex.db_cache_size' was specified
-#      set_fact:
-#        db_cache_size_is_specified: "{{ true if not (
-#            (plex.db_cache_size is undefined)
-#            or
-#            (plex.db_cache_size is none)
-#            or
-#            (plex.db_cache_size | trim | length == 0)
-#          )
-#          else false }}"
-#
-#    - name: Get Desired Plex DB Cache Size
-#      set_fact:
-#        desired_db_cache_size: "{{ default_db_cache_size
-#          if ( (not db_cache_size_is_specified) or (plex.db_cache_size == 'default') )
-#          else ( (plex.db_cache_size) | regex_replace(',', '') | int ) }}"
+    - name: Set 'default_db_cache_size' variable
+      set_fact:
+        default_db_cache_size: '2000'
+
+    - name: Check if 'plex.db_cache_size' was specified
+      set_fact:
+        db_cache_size_is_specified: "{{ true if not (
+            (plex.db_cache_size is undefined)
+            or
+            (plex.db_cache_size is none)
+            or
+            (plex.db_cache_size | trim | length == 0)
+          )
+          else false }}"
+
+    - name: Get Desired Plex DB Cache Size
+      set_fact:
+        desired_db_cache_size: "{{ default_db_cache_size
+          if ( (not db_cache_size_is_specified) or (plex.db_cache_size == 'default') )
+          else ( (plex.db_cache_size) | regex_replace(',', '') | int ) }}"
 
     - name: Make Plex DB Edits
       block:
@@ -388,12 +346,12 @@
 
       - name: Display Desired Plex DB Cache Size
         debug:
-          msg: "Desired Plex DB Cache Size is 300000"
+          msg: "Desired Plex DB Cache Size is '{{ desired_db_cache_size }}'"
 
       - name: "Set Plex DB Cache Size"
         shell: |
           sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
-            "PRAGMA default_cache_size = 300000;"
+            "PRAGMA default_cache_size = '{{ desired_db_cache_size | int }}';"
         args:
           executable: /bin/bash
 
@@ -413,7 +371,8 @@
         docker_container:
           name: plex
           state: started
-        #when: ('plex_db_cache_size' in ansible_run_tags)
+        when: ('plex_db_cache_size' in ansible_run_tags)
+      #### EOF Bundle ADD
 
     - debug: msg="Final Notes - Remote Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Token {{claim.stdout}}"
       when: servertype.stdout == "remote"
