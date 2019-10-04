@@ -83,6 +83,9 @@
         default_env:
           UID: '1000'
           GID: '1000'
+          #  linuxserver.io enable linuxserver.io compatability. #
+          PUID: '1000'
+          PGID: '1000'
 
     - name: Check Preferences.xml exists
       stat:
