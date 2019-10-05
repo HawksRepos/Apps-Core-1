@@ -312,20 +312,6 @@
       when:
         - stat_result_sonarr.stat.exists == False
 
-     ####Hama Bundle
-    - name: Check Hama.Bundle exist
-      stat:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
-      register: stat_result_hama
-
-    - name: Clone Hama.Bundle
-      git:
-        repo: 'https://github.com/ZeroQI/Hama.bundle.git'
-        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
-        force: yes
-      when:
-        - stat_result_hama.stat.exists == False        
-
      ####OpenMovieDatabase Bundle
     - name: Check OpenMovieDatabase.Bundle exist
       stat:
