@@ -11,19 +11,128 @@
 #                   moded from MrDoobPG for PTS                         #
 #########################################################################
 
-  - name: Set download location
+  - name: Settings  Install 'dnsutils'
+    apt: "name=dnsutils state=present"
+
+  - name: Settings  Get Public IP Address
+    shell: dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'\"' '{ print $2}'
+    register: public_ip_lookup
+
+  - name: Settings  Set 'public_ip' variable
+    set_fact:
+      public_ip: "{{ public_ip_lookup.stdout }}"
+
+  - name: Settings  Set 'network.local_address.set'
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '^network\.local_address\.set\s*=.*'
+      line: 'network.local_address.set = {{ public_ip }}'
+      state: present
+
+  - name: Settings  Add comment for 'network.local_address.set'
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      insertbefore: '^network\.local_address\.set\s*=.*'
+      line: "# The ip address reported to the tracker"
+      state: present
+
+  - name: Settings  Add line space
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      insertbefore: '# The ip address reported to the tracker'
+      line: ""
+      state: present
+
+  - name: Settings  Set 'execute'
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '^execute\s=.*'
+      line: 'execute = {sh,-c,/usr/bin/php7 /app/rutorrent/php/initplugins.php abc &}'
+      state: present
+    
+  - name: Set download location || /mnt/incomplete/torrent
+    lineinfile:
+      path: '/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc'
+      regexp: '#*directory.default.set\s*=.*'
+      state: present
+
+  - name: Set download completed move location to /mnt/downloads/torrent
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*method.insert\s*=\s*d.get_finished_dir.*'
+      line: 'method.insert = d.get_finished_dir, simple, "cat=/mnt/downloads/torrent/,$d.custom1="'
+      state: present
+
+  - name: Set download data path location 
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*method.insert\s*=\s*d.data_path.*'
+      line: 'method.insert = d.data_path, simple, "if=(d.is_multi_file), (cat,(d.directory),/), (cat,(d.directory),/,(d.name))"'
+      state: present
+
+  - name: Enable download completed move to /mnt/downloads/torrent
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*method.insert\s*=\s*d.move_to_complete,\s*simple.*'
+      line: 'method.insert = d.move_to_complete, simple, "d.directory.set=$argument.1=; execute=mkdir,-p,$argument.1=; execute=mv,-u,$argument.0=,$argument.1=; d.save_full_session="'
+      state: present
+
+  - name: Enable download completed move event to /mnt/downloads/torrent
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*method.set_key\s*=\s*event.download.finished,move_complete.*'
+      line: 'method.set_key = event.download.finished,move_complete,"d.move_to_complete=$d.data_path=,$d.get_finished_dir="'
+      state: present
+
+  - name: Set download location || /mnt/downloads/incomplete
     lineinfile:
       path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
       regexp: '#*directory\s*=.*'
-      line: 'directory = {{path.stdout}}/downloads/{{pgrole}}'
+      line: 'directory = /mnt/incomplete/torrent'
+      state: present
+
+  - name: Set download location default set
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*directory.default.set\s*=.*'
+      line: 'directory.default.set = /mnt/incomplete/torrent'
       state: present
 
   # Disable DHT - i.e.  disables trackerless torrents.
   - name: Settings  Disable DHT
     lineinfile:
       path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
-      regexp: '^dht\.mode\.set\s*=.*'
+      regexp: '#*dht\s*=.*'
       line: 'dht.mode.set = disable'
+      state: present
+
+  # Disable DHT - i.e.  disables trackerless torrents.
+  - name: Settings  Disable DHT
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*dht\s*=.*'
+      line: '#dht = auto'
+      state: present
+
+  - name: DHT port
+    lineinfile:
+      path: '/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc'
+      regexp: '#*dht_port\s*=.*'
+      line: '#dht_port = 6881'
+      state: present
+
+  - name: check Hash
+    lineinfile:
+      path: '/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc'
+      regexp: '#*check_hash\s*=.*'
+      line: 'check_hash = no'
+      state: present
+
+  - name: Set lower disk space to 1500M
+    lineinfile:
+      path: '/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc'
+      regexp: '#*schedule = low_diskspace,5,60,close_low_diskspace=100M\s*=.*'
+      line: 'schedule = low_diskspace,5,60,close_low_diskspace=1500M'
       state: present
 
   # Disable Peer exchange (PEX) - i.e. allows torrents marked private, only.
@@ -67,19 +176,19 @@
       state: present
 
 # Global download rate in KiB
-  - name: Settings  Set 'global_download_rate' to unlimited
+  - name: Settings  Set 'global_download_rate' to 54000
     lineinfile:
       path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
       regexp: '^throttle\.global_down\.max_rate\.set_kb\s*=.*'
-      line: 'throttle.global_down.max_rate.set_kb = 0'
+      line: 'throttle.global_down.max_rate.set_kb = 54000'
       state: present
 
 # Global upload rate in KiB
-  - name: Settings  Set 'global_upload_rate' to unlimited
+  - name: Settings  Set 'global_upload_rate' to 54000
     lineinfile:
       path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
       regexp: '^throttle\.global_up\.max_rate\.set_kb\s*=.*'
-      line: 'throttle.global_up.max_rate.set_kb = 0'
+      line: 'throttle.global_up.max_rate.set_kb = 54000'
       state: present
 
 # Maximum number of open files rtorrent can keep open.
@@ -116,7 +225,7 @@
     lineinfile:
       path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
       regexp: '^.*#.*schedule.*=.*watch_directory.*'
-      line: 'schedule = watch_directory,5,5,"load.start=/downloads/torrents/rutorrent/watched/*.torrent,d.delete_tied="'
+      line: 'schedule = watch_directory,5,5,"load.start=/downloads/torrents/watched/*.torrent,d.delete_tied="'
       state: present
 
   - name: Settings  Set 'network.xmlrpc.size_limit.set' to 20M
@@ -159,6 +268,7 @@
       force: yes
 
 ##index.html fix
+
   - name: Settings  Import custom 'Index.html'
     copy:
       src: '/opt/coreapps/apps/templates/rutorrent/www/index.html'
@@ -207,9 +317,37 @@
       line: 'execute = {sh,-c,/usr/bin/php7 /app/rutorrent/php/initplugins.php abc &}'
       state: present
     
-  - name: Set download location
+  - name: Set download location ||  /mnt/incomplete/torrent
     lineinfile:
       path: '/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc'
       regexp: '#*directory.default.set\s*=.*'
-      line: 'directory.default.set = /mnt/downloads/torrent'
+      line: 'directory.default.set = /mnt/incomplete/torrent'
+      state: present
+
+  - name: Set download completed move location
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*method.insert\s*=\s*d.get_finished_dir.*'
+      line: 'method.insert = d.get_finished_dir, simple, "cat=/mnt/downloads/torrent/,$d.custom1="'
+      state: present
+
+  - name: Set download data path location
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*method.insert\s*=\s*d.data_path.*'
+      line: 'method.insert = d.data_path, simple, "if=(d.is_multi_file), (cat,(d.directory),/), (cat,(d.directory),/,(d.name))"'
+      state: present
+
+  - name: Enable download completed move
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*method.insert\s*=\s*d.move_to_complete,\s*simple.*'
+      line: 'method.insert = d.move_to_complete, simple, "d.directory.set=$argument.1=; execute=mkdir,-p,$argument.1=; execute=mv,-u,$argument.0=,$argument.1=; d.save_full_session="'
+      state: present
+
+  - name: Enable download completed move event
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '#*method.set_key\s*=\s*event.download.finished,move_complete.*'
+      line: 'method.set_key = event.download.finished,move_complete,"d.move_to_complete=$d.data_path=,$d.get_finished_dir="'
       state: present
