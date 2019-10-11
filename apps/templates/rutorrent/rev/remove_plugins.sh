@@ -6,8 +6,6 @@ dir=app/rutorrent/plugins
 apk update
 apk upgrade
 
-apk add git
-
 rm -rf $dir/_cloudflare/
 rm -rf $dir/ipad/
 rm -rf $dir/rssurlrewrite/
