@@ -316,13 +316,6 @@
       regexp: '^execute\s=.*'
       line: 'execute = {sh,-c,/usr/bin/php7 /app/rutorrent/php/initplugins.php abc &}'
       state: present
-    
-  - name: Set download location ||  /mnt/incomplete/torrent
-    lineinfile:
-      path: '/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc'
-      regexp: '#*directory.default.set\s*=.*'
-      line: 'directory.default.set = /mnt/incomplete/torrent'
-      state: present
 
   - name: Set download completed move location
     lineinfile:
