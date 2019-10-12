@@ -54,6 +54,7 @@
     lineinfile:
       path: '/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc'
       regexp: '#*directory.default.set\s*=.*'
+      line: 'directory.default.set = /mnt/incomplete/torrent'
       state: present
 
   - name: Set download completed move location to /mnt/downloads/torrent
