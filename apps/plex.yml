@@ -141,6 +141,38 @@
       when:
         - plex_prefs.stat.exists == False
 
+    - name: Edit GenerateChapterThumbBehavior to never
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: GenerateChapterThumbBehavior
+        value: 'never'
+      when: plex_prefs.stat.exists
+
+    - name: Edit LoudnessAnalysisBehavior to never
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: LoudnessAnalysisBehavior
+        value: 'never'
+      when: plex_prefs.stat.exists
+
+    - name: Edit MinutesAllowedPaused to max 10min
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: MinutesAllowedPaused
+        value: '10'
+      when: plex_prefs.stat.exists
+
+    - name: Edit DlnaEnabled to disable 
+      xml:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
+        xpath: /Preferences
+        attribute: DlnaEnabled
+        value: 'p'
+      when: plex_prefs.stat.exists
+
     - name: 'Get Plex Custom URL'
       shell: 'echo https://plex.{{domain.stdout}}:443,http://plex.{{domain.stdout}}:80'
       register: plex_url
