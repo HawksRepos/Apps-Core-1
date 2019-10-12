@@ -1,9 +1,10 @@
   - name: Update APT package cache
-    apt: update_cache=yes cache_valid_time=600
+    apt: update_cache=yes cache_valid_time=600 force_apt_get=yes
 
   - name: Upgrade APT to the latest packages
-    apt: upgrade=dist
+    apt: upgrade=dist force_apt_get=yes
     register: apt_result
+    force_apt_get: yes
 
   - name: Install a list of packages
     command: apt-get install -y jq dnsutils ctop
