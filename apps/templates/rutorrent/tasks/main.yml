@@ -112,14 +112,14 @@
     lineinfile:
       path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
       regexp: '#*dht\s*=.*'
-      line: '#dht = auto'
+      line: '# dht = auto'
       state: present
 
   - name: DHT port
     lineinfile:
       path: '/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc'
       regexp: '#*dht_port\s*=.*'
-      line: '#dht_port = 6881'
+      line: '# dht_port = 6881'
       state: present
 
   - name: check Hash
@@ -184,13 +184,30 @@
       line: 'throttle.global_down.max_rate.set_kb = 54000'
       state: present
 
+# Global download rate in KiB part 2
+  - name: Settings  Set 'global_download_rate' to 54000 || validate
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '^download_rate\s*=.*'
+      line: 'download_rate = 54000'
+      state: present
+
 # Global upload rate in KiB
   - name: Settings  Set 'global_upload_rate' to 54000
+    lineinfile:
+      path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
+      regexp: '^upload_rate\s*=.*
+      line: 'upload_rate= 54000'
+      state: present
+
+# Global upload rate in KiB
+  - name: Settings  Set 'global_upload_rate' to 54000 || validate
     lineinfile:
       path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
       regexp: '^throttle\.global_up\.max_rate\.set_kb\s*=.*'
       line: 'throttle.global_up.max_rate.set_kb = 54000'
       state: present
+
 
 # Maximum number of open files rtorrent can keep open.
   - name: Settings  Set 'max_open_files' to 1024
