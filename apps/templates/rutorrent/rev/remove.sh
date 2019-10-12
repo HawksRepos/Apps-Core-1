@@ -5,7 +5,7 @@ bash="bash remove.sh "
 pre="apk add wget php7-ctype "
 
 precmd="docker exec $container $pre"
-final_cmd="docker cp -a $rev  $container:/remove.ah"
+final_cmd="docker cp -a $rev  $container:remove.sh"
 second_cmd="docker exec $container $bash"
 
 eval $pre_cmd
