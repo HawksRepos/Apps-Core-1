@@ -19,6 +19,9 @@ rm -rf $dir/loginmgr/
 rm -rf $dir/screenshots/
 rm -rf $dir/rutracker_check/
 rm -rf $dir/mobile/
+rm -rf $dir/uploadeta/
+rm -rf $dir/chunks/
+
 
 ##clone mobile new
 git clone https://github.com/xombiemp/rutorrentMobile.git $dir/mobile
