@@ -83,6 +83,9 @@
         default_env:
           UID: '1000'
           GID: '1000'
+          #  linuxserver.io enable linuxserver.io compatability. #
+          PUID: '1000'
+          PGID: '1000'
 
     - name: Check Preferences.xml exists
       stat:
@@ -269,20 +272,6 @@
       when:
         - stat_result_sonarr.stat.exists == False
 
-     ####Hama Bundle
-    - name: Check Hama.Bundle exist
-      stat:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
-      register: stat_result_hama
-
-    - name: Clone Hama.Bundle
-      git:
-        repo: 'https://github.com/ZeroQI/Hama.bundle.git'
-        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
-        force: yes
-      when:
-        - stat_result_hama.stat.exists == False        
-
      ####OpenMovieDatabase Bundle
     - name: Check OpenMovieDatabase.Bundle exist
       stat:
@@ -296,6 +285,15 @@
         force: yes
       when:
         - stat_result_openmovie.stat.exists == False    
+
+    - name: "Install package for Plex-DB Cache size Fix"
+      apt:
+        name: "{{ packages }}"
+        state: latest
+        update_cache: yes
+      vars:
+        packages:
+        - sqlite3
 
     - name: "Install package for Plex-DB Cache size Fix"
       apt:
