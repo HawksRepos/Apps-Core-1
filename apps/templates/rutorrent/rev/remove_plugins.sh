@@ -3,9 +3,6 @@
 
 dir=app/rutorrent/plugins
 
-apk update
-apk upgrade
-
 rm -rf $dir/_cloudflare/
 rm -rf $dir/ipad/
 rm -rf $dir/rssurlrewrite/
@@ -21,7 +18,6 @@ rm -rf $dir/rutracker_check/
 rm -rf $dir/mobile/
 rm -rf $dir/uploadeta/
 rm -rf $dir/chunks/
-
 
 ##clone mobile new
 git clone https://github.com/xombiemp/rutorrentMobile.git $dir/mobile
