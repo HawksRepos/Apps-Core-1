@@ -113,9 +113,6 @@
     - name: 'purge broken plugins file'
       shell: 'bash /opt/coreapps/apps/templates/rutorrent/rev/remove.sh'
 
-    - name: 'execute broken plugins file'
-      shell: 'docker exec rutorrent bash remove.sh'
-
     # This is needed for rutorrent b/c it's weird.
     - name: 'Setting ownership on appdata recursivley (this can take a while!)'
       shell: 'chown -cR 1000:1000 /opt/appdata/{{pgrole}}'
@@ -129,9 +126,6 @@
       docker_container:
         name: '{{pgrole}}'
         state: started
-
-    - name: 'purge broken plugins file'
-      shell: 'bash /opt/coreapps/apps/templates/rutorrent/rev/remove.sh'
 
     - name: 'execute broken plugins file'
       shell: 'docker exec rutorrent bash remove.sh'
