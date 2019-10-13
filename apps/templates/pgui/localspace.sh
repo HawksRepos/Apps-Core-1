@@ -14,7 +14,6 @@ startscript() {
         while [ 1 ]; do
 
                 rm -rf /var/plexguide/spaceused.log
-                rm -rf /var/plexguide/logs/*.log
 
                 # move and downloads for the UI
 
