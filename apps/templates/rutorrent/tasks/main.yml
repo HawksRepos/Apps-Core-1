@@ -197,7 +197,7 @@
     lineinfile:
       path: "/opt/appdata/{{pgrole}}/rtorrent/rtorrent.rc"
       regexp: '^upload_rate\s*=.*
-      line: 'upload_rate= 54000'
+      line: 'upload_rate = 54000'
       state: present
 
 # Global upload rate in KiB
