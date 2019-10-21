@@ -31,7 +31,7 @@
         #cpu_shares: 64
         state: started
         volumes:
-          - /var/run/docker.sock:/var/run/docker.sock
+          - '/var/run/docker.sock:/var/run/docker.sock'
         restart_policy: unless-stopped
         networks:
           - name: plexguide
