@@ -63,7 +63,6 @@
       set_fact:
         pg_volumes:
           - '{{path.stdout}}:{{path.stdout}}'
-          - '/mnt:/mnt'
           - '/opt/appdata/{{pgrole}}:/config'
           - '{{path.stdout}}/downloads/{{pgrole}}/:/output:rw'
 
