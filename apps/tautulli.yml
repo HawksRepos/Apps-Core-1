@@ -26,7 +26,7 @@
 
     - name: 'Checking for existing app data'
       stat:
-        path: /opt/appdata/tautulli/config.ini
+        path: /opt/appdata/{{pgrole}}/config.ini
       register: confcheck
 
     - name: 'Including Tasks'
@@ -86,7 +86,7 @@
       block:
         - name: 'Waiting for {{pgrole}} to start'
           wait_for:
-            path: '/opt/appdata/tautulli/config.ini'
+            path: '/opt/appdata/{{pgrole}}/config.ini'
             state: present
 
         - name: Stop Container

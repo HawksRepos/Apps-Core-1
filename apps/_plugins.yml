@@ -20,6 +20,10 @@
     mode: 0775
   when: copycheck.stat.exists
 
-##PG-Core
+# scripts permissions
+- name: 'Setting permissions on scripts'
+  shell: 'chmod -R 775 /opt/appdata/{{pgrole}}/scripts'
 
-##PG-Core
+# scripts permissions
+- name: 'Setting permissions on scripts'
+  shell: 'chmod -R 775 /opt/appdata/{{pgrole}}/plugins'
