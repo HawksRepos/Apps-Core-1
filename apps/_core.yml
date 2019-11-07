@@ -86,7 +86,7 @@
   ignore_errors: True
 
 - name: Storing Role Name
-  shell: "echo '{{pgrole}}' > /tmp/program_var"
+  shell: "echo '{{pgrole}}' >/tmp/program_var"
   ignore_errors: True
 
   # APPDATA
