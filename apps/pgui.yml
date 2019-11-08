@@ -23,7 +23,7 @@
       include_tasks: '/opt/coreapps/apps/_core.yml'
 
     - name: 'Including cron job'
-      include_tasks: '/opt/coreapps/apps/_cron.yml'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/_cron.yml'
 
     - name: 'Including Tasks'
       include_tasks: '/opt/plexguide/menu/{{pgrole}}/templates/dynamic.yml'
