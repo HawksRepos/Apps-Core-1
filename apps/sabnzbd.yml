@@ -169,6 +169,22 @@
             value: 1
             state: present
 
+        - name: Set max logging lines
+          ini_file:
+            path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
+            section: misc
+            option: max_log_size
+            value: 524
+            state: present
+
+        - name: Set max logging days
+          ini_file:
+            path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
+            section: misc
+            option: log_backups
+            value: 1
+            state: present
+
         - name: set unwanted_extensions
           ini_file:
             path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
@@ -183,6 +199,14 @@
             section: misc
             option: cleanup_list
             value: nfo, exe, com, bat, txt, doc, xls, xlxs, docx, doc, jpg, jeg, gif, png
+            state: present
+
+        - name: set Cache Limit to 4G
+          ini_file:
+            path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
+            section: misc
+            option: cache_limit
+            value: 4G
             state: present
 
         - name: set action_on_unwanted_extensions
