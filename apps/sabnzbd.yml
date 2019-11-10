@@ -29,7 +29,6 @@
       file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
       with_items:
         - '{{path.stdout}}/nzb/backups'
-        - '{{path.stdout}}/nzb/backups/watch'
 
     - name: 'Including plugins'
       include_tasks: '/opt/coreapps/apps/_plugins.yml'
@@ -124,7 +123,7 @@
         path: '/opt/appdata/{{pgrole}}/sabnzbd.ini'
         section: misc
         option: dirscan_dir
-        value: '{{path.stdout}}/nzb/backups/watch'
+        value: '{{path.stdout}}/nzb/watch'
         state: present
 
     - name: Set nzb backup location
