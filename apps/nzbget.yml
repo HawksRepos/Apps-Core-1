@@ -46,7 +46,7 @@
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
           traefik.frontend.auth.forward.address: '{{gauth}}'
-          traefik.frontend.rule: 'Host:{{tldset}}{{cname}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
           traefik.frontend.headers.SSLHost: '{{domain.stdout}}'
           traefik.frontend.headers.SSLRedirect: 'true'
           traefik.frontend.headers.STSIncludeSubdomains: 'true'
@@ -88,6 +88,31 @@
               - '{{pgrole}}'
         state: started
         labels: '{{pg_labels}}'
+
+    # Correct Scripts Folder ###################################
+    - name: Check scripts folder
+      stat:
+        path: '/opt/appdata/{{pgrole}}/scripts'
+      register: scripts
+
+    - name: Overwrite existing directory
+      file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
+      with_items:
+        - '/opt/appdata/{{pgrole}}/scripts'
+      when:
+        - scripts.stat.exists == True
+
+    - name: Install correct scripts folder
+      unarchive:
+        src: 'https://github.com/clinton-hall/GetScripts/archive/master.zip'
+        dest: '/opt/appdata/{{pgrole}}/scripts/'
+        keep_newer: yes
+        owner: '1000'
+        group: '1000'
+        mode: 0775
+        copy: no
+      when:
+        - scripts.stat.exists == True
 
     # CONFIGURATION #############################################################
     - name: 'Waiting for {{pgrole}} to initialize'

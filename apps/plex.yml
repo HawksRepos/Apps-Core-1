@@ -57,7 +57,7 @@
         default_labels:
           traefik.enable: 'true'
           traefik.port: '{{intport}}'
-          traefik.frontend.rule: 'Host:{{tldset}}{{cname}}'
+          traefik.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
           traefik.frontend.headers.SSLHost: '{{domain.stdout}}'
           traefik.frontend.headers.SSLRedirect: 'true'
           traefik.frontend.headers.STSIncludeSubdomains: 'true'
@@ -226,6 +226,8 @@
           PLEX_GID: '1000'
           PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
+          NVIDIA_VISIBLE_DEVICES: 'all'
+          NVIDIA_DRIVER_CAPABILITIES: 'compute,video,utility'
         purge_networks: yes
         networks:
           - name: plexguide
@@ -260,6 +262,8 @@
           PLEX_UID: '1000'
           PLEX_GID: '1000'
           ADVERTISE_IP: '{{customConnections}}'
+          NVIDIA_VISIBLE_DEVICES: 'all'
+          NVIDIA_DRIVER_CAPABILITIES: 'compute,video,utility'
         networks:
           - name: plexguide
             aliases:
