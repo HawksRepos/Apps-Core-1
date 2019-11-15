@@ -6,7 +6,7 @@
 
 - name: 'Check if Templates Exist for {{pgrole}}'
   stat:
-    path: '/opt/coreapps/apps/templates/{{pgrole}}''
+    path: '/opt/coreapps/apps/templates/{{pgrole}}'
   register: copycheck
 
 - name: 'Copying Scripts & Plugins'
