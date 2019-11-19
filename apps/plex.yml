@@ -38,11 +38,11 @@
       include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     # FACTS #######################################################################
-    - name: 'Plex Server Network Type'
+    - name: '{{pgrole}} Server Network Type'
       shell: 'cat /var/plexguide/plex.server'
       register: servertype
 
-    - name: Register Claim Number
+    - name: Register {{pgrole}}-Claim Number
       shell: 'cat /var/plexguide/plex.claim'
       register: claim
       when: servertype.stdout == "remote"
@@ -68,7 +68,7 @@
           traefik.frontend.headers.customResponseHeaders: 'X-Robots-Tag:noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
           traefik.frontend.headers.forceSTSHeader: 'true'
 
-    - name: 'Set Default Volume - {{ extension.stdout }}'
+    - name: 'Set {{pgrole}} default Volume - {{ extension.stdout }}'
       set_fact:
         default_volumes:
           - '{{path.stdout}}:{{path.stdout}}'
@@ -86,13 +86,25 @@
           PUID: '1000'
           PGID: '1000'
 
-    - name: Check Preferences.xml exists
+    - name: Check {{pgrole}}-preferences.xml exists
       stat:
         path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
       register: plex_prefs
 
     ############### This is needed because on a fresh installaions the value is missing and is defaulted to 1 Security perfered
-    - name: secureConnections is missing
+    - name: Register {{pgrole}} Log folder
+      stat:
+        path: '/opt/appdata/{{pgrole}}'
+      register: pfolder
+
+    - name: Create {{pgrole}} Log folder
+      file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
+      with_items:
+        - '/opt/appdata/{{pgrole}}/database/Library/Logs'
+      when: pfolder.stat.exists == False
+      ignore_errors: yes
+
+    - name: secure Connections is missing
       xml:
         path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
         xpath: /Preferences/@secureConnections
@@ -127,20 +139,20 @@
         - plex_prefs.stat.exists
         - plex_pref_content.matches[0]['Preferences']['secureConnections']
 
-    - name: Read customConnections
+    - name: Read custom Connections
       set_fact:
         customConnections: "{{plex_pref_content.matches[0]['Preferences']['customConnections']}}"
       when:
         - plex_prefs.stat.exists
         - plex_pref_content.matches[0]['Preferences']['customConnections'] is defined
 
-    - name: customConnections missing
+    - name: custom Connections missing
       set_fact:
         customConnections: 'http://{{ipaddress.stdout}}:32400, http://plex.{{domain.stdout}}:32400'
       when:
         - plex_prefs.stat.exists == False
 
-    - name: Edit GenerateChapterThumbBehavior to never
+    - name: Edit Generate - Chapter -Thumb - Behavior to never
       xml:
         path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
         xpath: /Preferences
@@ -148,7 +160,7 @@
         value: 'never'
       when: plex_prefs.stat.exists
 
-    - name: Edit LoudnessAnalysisBehavior to never
+    - name: Edit Loudness - Analysis - Behavior to never
       xml:
         path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
         xpath: /Preferences
@@ -156,7 +168,7 @@
         value: 'never'
       when: plex_prefs.stat.exists
 
-    - name: Edit MinutesAllowedPaused to max 10min
+    - name: Edit Minutes - Allowed - Paused to max 10min
       xml:
         path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
         xpath: /Preferences
@@ -164,7 +176,7 @@
         value: '10'
       when: plex_prefs.stat.exists
 
-    - name: Edit DlnaEnabled to disable 
+    - name: Edit Dlna-Enabled to disable 
       xml:
         path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Preferences.xml'
         xpath: /Preferences
@@ -172,7 +184,7 @@
         value: 'p'
       when: plex_prefs.stat.exists
 
-    - name: 'Get Plex Custom URL'
+    - name: 'Get {{pgrole}} Custom URL'
       shell: 'echo https://plex.{{domain.stdout}}:443,http://plex.{{domain.stdout}}:80'
       register: plex_url
       when: servertype.stdout == "remote"
@@ -208,7 +220,7 @@
       when: customConnections is undefined
 
     ######################################### DEPLOY PLEX REMOTE (ANSWER 2)
-    - name: Deploy Plex Container (Remote Edition)
+    - name: Deploy {{pgrole}} Container (Remote Edition)
       docker_container:
         name: plex
         image: '{{image}}'
@@ -243,7 +255,7 @@
       when: servertype.stdout == "remote"
 
     ######################################### DEPLOY PLEX LOCAL (ANSWER 3)
-    - name: Deploy Plex Container (Local Edition)
+    - name: Deploy {{pgrole}} Container (Local Edition)
       docker_container:
         name: plex
         image: '{{image}}'
@@ -278,7 +290,6 @@
       when: servertype.stdout == "local"
 
     # PLUGINS ####################################################
-      #/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins
      ####Radarr Bundle
     - name: Check Radarr.Bundle exist
       stat:
@@ -322,7 +333,7 @@
         - stat_result_openmovie.stat.exists == False    
         ########EOF BUNDLE
         #####Db edits 
-    - name: "Install package for Plex-DB Cache size Fix"
+    - name: "Install package for {{pgrole}}-db Cache size Fix"
       apt:
         name: "{{ packages }}"
         state: latest
@@ -331,7 +342,7 @@
         packages:
         - sqlite3
         
-    - name: "Install package for Plex-DB Cache size Fix"
+    - name: "Install package for {{pgrole}}-db Cache size Fix"
       apt:
         name: "{{ packages }}"
         state: latest
@@ -340,7 +351,7 @@
         packages:
         - sqlite3
 
-    - name: Get Current Plex DB Cache Size
+    - name: Get Current {{pgrole}} DB Cache Size
       shell: |
         sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
         "PRAGMA default_cache_size;"
@@ -363,16 +374,16 @@
           )
           else false }}"
 
-    - name: Get Desired Plex DB Cache Size
+    - name: Get Desired {{pgrole}} DB Cache Size
       set_fact:
         desired_db_cache_size: "{{ default_db_cache_size
           if ( (not db_cache_size_is_specified) or (plex.db_cache_size == 'default') )
           else ( (plex.db_cache_size) | regex_replace(',', '') | int ) }}"
 
-    - name: Make Plex DB Edits
+    - name: Make {{pgrole}} DB Edits
       block:
 
-      - name: Stop Plex Container
+      - name: Stop {{pgrole}} Container
         docker_container:
           name: plex
           state: stopped
@@ -382,14 +393,14 @@
         debug:
           msg: "Desired Plex DB Cache Size is '{{ desired_db_cache_size }}'"
 
-      - name: "Set Plex DB Cache Size"
+      - name: "Set {{pgrole}} DB Cache Size"
         shell: |
           sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
             "PRAGMA default_cache_size = '{{ desired_db_cache_size | int }}';"
         args:
           executable: /bin/bash
 
-      - name: Get New Plex DB Cache Size
+      - name: Get New {{pgrole}} DB Cache Size
         shell: |
           sqlite3 "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
             "PRAGMA default_cache_size;"
@@ -397,12 +408,12 @@
           executable: /bin/bash
         register: new_db_cache_size
 
-      - name: Display New Plex DB Cache Size
+      - name: Display New {{pgrole}} DB Cache Size
         debug:
           msg: "Plex DB cache size is now set to '{{ new_db_cache_size.stdout | int }}'."
        #####EOF.DB.EDITS
 
-      - name: Start Plex Container
+      - name: Start {{pgrole}} Container
         docker_container:
           name: plex
           state: started
