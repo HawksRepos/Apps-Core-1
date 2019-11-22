@@ -95,14 +95,19 @@
         path: '/opt/appdata/{{pgrole}}/scripts'
       register: scripts
 
-    - name: Overwrite existing directory
-      file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000'
+    - name: Overwrite {{pgrole}} existing directory
+      file: 'path={{item}} state=directory mode=0775 owner=1000 group=1000 recurse=yes'
       with_items:
         - '/opt/appdata/{{pgrole}}/scripts'
       when:
         - scripts.stat.exists == True
+ 
+    - name: 'Install {{pgrole}} scripts from template'
+      include_tasks: '/opt/coreapps/apps/templates/nzbget/scripts.yml'
+      when:
+        - scripts.stat.exists == True
 
-    - name: Install correct scripts folder
+    - name: Install Clinton-hall {{pgrole}} scripts from scratch
       unarchive:
         src: 'https://github.com/clinton-hall/GetScripts/archive/master.zip'
         dest: '/opt/appdata/{{pgrole}}/scripts/'
@@ -167,10 +172,6 @@
         regexp: '^ScriptDir\s*=.*'
         line: 'ScriptDir=${MainDir}/scripts'
         state: present
-
-    #  Cloning Scripts 
-    - name: 'Including Tasks'
-      include_tasks: '/opt/coreapps/apps/templates/nzbget/scripts.yml'
 
     # FIRST TIME CONFIGURATION #############################################################
     - name: 'Configuring {{pgrole}} for first time use'
