@@ -96,8 +96,8 @@
         - name: 'update {{pgrole}}'
           shell: 'sudo docker exec -it {{pgrole}} apk update && sudo docker exec -it {{pgrole}} apk upgrade'
         - name: 'pip update for {{pgrole}}'
-          shell: 'sudo docker exec -it tautulli pip install --upgrade PIP'
-        - name: 'pip install jsonrpclib-pelix for tautulli'
+          shell: 'sudo docker exec -it {{pgrole}} pip install --upgrade PIP'
+        - name: 'pip install jsonrpclib-pelix for {{pgrole}}'
           shell: 'sudo docker exec -it {{pgrole}} pip install jsonrpclib-pelix'
       when: not confcheck.stat.exists
 
@@ -119,7 +119,7 @@
         - name: update docker {{pgrole}}
           shell: 'sudo docker exec -it {{pgrole}} apk update && sudo docker exec -it {{pgrole}} apk upgrade'
         - name: pip update for {{pgrole}}´
-          shell: 'sudo docker exec -it tautulli pip install --upgrade PIP'
+          shell: 'sudo docker exec -it {{pgrole}} pip install --upgrade PIP'
         - name: pip install jsonrpclib-pelix for {{pgrole}}
           shell: 'sudo docker exec -it {{pgrole}} pip install jsonrpclib-pelix'
       when: confcheck.stat.exists
