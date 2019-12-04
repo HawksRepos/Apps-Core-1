@@ -94,7 +94,7 @@
             name: '{{pgrole}}'
             state: started
         - name: 'update {{pgrole}}'
-          shell: 'sudo docker exec -it tautulli apt-get update -yqq'
+          shell: 'sudo docker exec -it {{pgrole}} apk update && sudo docker exec -it {{pgrole}} apk upgrade'
         - name: 'pip update for {{pgrole}}'
           shell: 'sudo docker exec -it tautulli pip install --upgrade PIP'
         - name: 'pip install jsonrpclib-pelix for tautulli'
@@ -117,7 +117,7 @@
             name: '{{pgrole}}'
             state: started
         - name: update docker {{pgrole}}
-          shell: 'sudo docker exec -it {{pgrole}} apt-get update -yqq'
+          shell: 'sudo docker exec -it {{pgrole}} apk update && sudo docker exec -it {{pgrole}} apk upgrade'
         - name: pip update for {{pgrole}}´
           shell: 'sudo docker exec -it tautulli pip install --upgrade PIP'
         - name: pip install jsonrpclib-pelix for {{pgrole}}
