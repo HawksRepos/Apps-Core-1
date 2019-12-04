@@ -23,7 +23,10 @@
 # scripts permissions
 - name: 'Setting permissions on scripts'
   shell: 'chmod -R 775 /opt/appdata/{{pgrole}}/scripts'
-
-# scripts permissions
-- name: 'Setting permissions on scripts'
+- name: 'Setting permissions on plugins for {{pgrole}}'
   shell: 'chmod -R 775 /opt/appdata/{{pgrole}}/plugins'
+
+- name: set owner rights on script folder for {{pgrole}}'
+  shell: 'chown -cR 1000:1000 /opt/appdata/{{pgrole}}/scripts'
+- name: set permission on plugin folder for {{pgrole}}'
+  shell: 'chown -cR 1000:1000 /opt/appdata/{{pgrole}}/plugins'
