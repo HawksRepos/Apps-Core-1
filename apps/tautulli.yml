@@ -116,10 +116,10 @@
           docker_container:
             name: '{{pgrole}}'
             state: started
-        - name: update docker {{pgrole}}
+        - name: 'update {{pgrole}}'
           shell: 'sudo docker exec -it {{pgrole}} apk update && sudo docker exec -it {{pgrole}} apk upgrade'
-        - name: pip update for {{pgrole}}´
+        - name: 'pip update for {{pgrole}}'
           shell: 'sudo docker exec -it {{pgrole}} pip install --upgrade PIP'
-        - name: pip install jsonrpclib-pelix for {{pgrole}}
+        - name: 'pip install jsonrpclib-pelix for {{pgrole}}'
           shell: 'sudo docker exec -it {{pgrole}} pip install jsonrpclib-pelix'
       when: confcheck.stat.exists
