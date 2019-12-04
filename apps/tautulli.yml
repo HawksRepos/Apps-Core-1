@@ -98,16 +98,16 @@
     - name: 'Update {{pgrole}} for first time use'
       block:
         - pause:
-            prompt: "Wait for {{pgrole}} start up "
-            seconds: 10
+            prompt: "Wait for {{pgrole}} start up"
+            seconds: 5
 
         - name: 'update {{pgrole}}'
-          shell: 'sudo docker exec -it {{pgrole}} apk update && sudo docker exec -it {{pgrole}} apk upgrade'
+          shell: 'docker exec {{pgrole}} apk update && docker exec {{pgrole}} apk upgrade'
 
         - name: 'pip update for {{pgrole}}'
-          shell: 'sudo docker exec -it {{pgrole}} pip install --upgrade PIP'
+          shell: 'docker exec {{pgrole}} pip install --upgrade PIP'
 
         - name: 'pip install jsonrpclib-pelix for {{pgrole}}'
-          shell: 'sudo docker exec -it {{pgrole}} pip install jsonrpclib-pelix'
+          shell: 'docker exec {{pgrole}} pip install jsonrpclib-pelix'
 
       when: confcheck.stat.exists
