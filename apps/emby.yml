@@ -30,7 +30,7 @@
       include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     # LABELS ######################################################################
-    - name: 'Adding Traefik'
+    - name: 'Adding Traefik for {{pgrole}}'
       set_fact:
         pg_labels:
           traefik.enable: 'true'
@@ -59,11 +59,11 @@
           UID: '1000'
           GID: '1000'
           GIDLIST: '1000'
-          NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if gpu.nvidia | default(false) else omit }}"
-          NVIDIA_VISIBLE_DEVICES: "{{ 'all' if gpu.nvidia | default(false) else omit }}"
+          NVIDIA_VISIBLE_DEVICES: 'all'
+          NVIDIA_DRIVER_CAPABILITIES: 'compute,video,utility'
 
     # MAIN DEPLOYMENT #############################################################
-    - name: 'Check'
+    - name: Check /dev/dri exists
       stat:
         path: '/dev/dri'
       register: dev_dri
@@ -74,16 +74,16 @@
         image: '{{image}}'
         pull: yes
         published_ports:
-          - '{{ports.stdout}}{{extport}}:{{intport}}'
+          - '{{extport}}:{{intport}}'
         devices: "{{ '/dev/dri:/dev/dri' if dev_dri.stat.exists == True | default(false) else omit }}"
         volumes: '{{pg_volumes}}'
         env: '{{pg_env}}'
+        purge_networks: yes
         restart_policy: unless-stopped
         networks:
           - name: plexguide
             aliases:
-              - '{{pgrole}}'
-        expose: '8096'
+              - emby
         state: started
         labels: '{{pg_labels}}'
 
