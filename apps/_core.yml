@@ -28,7 +28,7 @@
   register: ports
   ignore_errors: True
 
-- name: Register HD Path
+- name: Register HD Path | part one
   shell: 'cat /var/plexguide/server.hd.path'
   register: path
   ignore_errors: True
