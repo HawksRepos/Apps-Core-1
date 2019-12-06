@@ -15,6 +15,8 @@
         pgrole: 'emby'
         intport: '8096'
         extport: '8096'
+        intport2: '8920'
+        extport2: '8920'
         image: 'emby/embyserver'
 
     # CORE (MANDATORY) ############################################################
@@ -74,7 +76,8 @@
         image: '{{image}}'
         pull: yes
         published_ports:
-          - '{{extport}}:{{intport}}'
+          - '{{ports.stdout}}{{{extport}}:{{intport}}'
+          - '{{ports.stdout}}{{{extport2}}:{{intport2}}'
         devices: "{{ '/dev/dri:/dev/dri' if dev_dri.stat.exists == True | default(false) else omit }}"
         volumes: '{{pg_volumes}}'
         env: '{{pg_env}}'
@@ -83,7 +86,9 @@
         networks:
           - name: plexguide
             aliases:
-              - emby
+              - '{{pgrole}}'
+        expose: '8096'
+        expose: '8920'
         state: started
         labels: '{{pg_labels}}'
 
