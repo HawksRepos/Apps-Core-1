@@ -16,7 +16,7 @@
         pgrole: 'radarr'
         intport: '7878'
         extport: '7878'
-        image: 'linuxserver/radarr:preview'
+        image: 'linuxserver/radarr'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
@@ -77,3 +77,22 @@
               - '{{pgrole}}'
         state: started
         labels: '{{pg_labels}}'
+
+    - name: 'Checking for existing app data'
+      stat:
+        path: /opt/appdata/{{pgrole}}/config.xml
+      register: confcheck
+
+    - name: 'Update {{pgrole}} for first time use'
+      block:
+        - pause:
+            prompt: "Wait for {{pgrole}} start up"
+            seconds: 5
+
+        - name: 'update owner rights for {{pgrole}}'
+          shell: 'docker exec {{pgrole}} chown -cR abc:abc /opt/radarr/'
+
+        - name: 'update permission errors for {{pgrole}}'
+          shell: 'docker exec {{pgrole}} chmod -cR 775 /opt/radarr'
+
+      when: confcheck.stat.exists
