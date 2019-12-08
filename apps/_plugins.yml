@@ -12,7 +12,7 @@
 - name: 'Copying Scripts & Plugins'
   copy:
     src: '/opt/coreapps/apps/templates/{{pgrole}}'
-    dest: '/opt/appdata/{{pgrole}}'
+    dest: '/opt/appdata/'
     directory_mode: yes
     force: yes
     owner: '1000'
