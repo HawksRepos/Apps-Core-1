@@ -285,6 +285,7 @@
           PLEX_UID: '1000'
           PLEX_GID: '1000'
           VERSION: '{{updateplex}}'
+          PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
           NVIDIA_VISIBLE_DEVICES: 'all'
           NVIDIA_DRIVER_CAPABILITIES: 'compute,video,utility'
