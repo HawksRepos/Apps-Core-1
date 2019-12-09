@@ -193,6 +193,12 @@
       register: plex_url
       when: servertype.stdout == "remote"
 
+    - name: 'Get {{pgrole}} Custom URL'
+      shell: 'echo http://{{ipaddress.stdout}}:32400,http://plex.{{domain.stdout}}:80'
+      register: plex_url
+      when: servertype.stdout == "local"
+
+
     - debug: msg="Your plex_url is {{ plex_url.stdout }}"
       when: servertype.stdout == "remote"
 
