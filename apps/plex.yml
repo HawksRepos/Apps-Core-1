@@ -47,6 +47,10 @@
       register: claim
       when: servertype.stdout == "remote"
 
+    - name: Register {{pgrole}} Update role
+      shell: 'cat /var/plexguide/plex.updaterole'
+      register: updateplex
+
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
@@ -236,7 +240,7 @@
         env:
           PLEX_UID: '1000'
           PLEX_GID: '1000'
-          VERSION: 'docker'
+          VERSION: '{{updateplex}}'
           PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
           NVIDIA_VISIBLE_DEVICES: 'all'
@@ -274,7 +278,7 @@
         env:
           PLEX_UID: '1000'
           PLEX_GID: '1000'
-          VERSION: 'docker'
+          VERSION: '{{updateplex}}'
           ADVERTISE_IP: '{{customConnections}}'
           NVIDIA_VISIBLE_DEVICES: 'all'
           NVIDIA_DRIVER_CAPABILITIES: 'compute,video,utility'
