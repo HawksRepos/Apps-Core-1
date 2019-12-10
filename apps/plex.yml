@@ -34,6 +34,9 @@
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
 
+    - name: 'Including Tasks'
+      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
+
     # FACTS #######################################################################
     - name: '{{pgrole}} Server Network Type'
       shell: 'cat /var/plexguide/plex.server'
@@ -189,12 +192,6 @@
       shell: 'echo https://plex.{{domain.stdout}}:443,http://plex.{{domain.stdout}}:80'
       register: plex_url
       when: servertype.stdout == "remote"
-
-    - name: 'Get {{pgrole}} Custom URL'
-      shell: 'echo http://{{ipaddress.stdout}}:32400,http://plex.{{domain.stdout}}:80'
-      register: plex_url
-      when: servertype.stdout == "local"
-
 
     - debug: msg="Your plex_url is {{ plex_url.stdout }}"
       when: servertype.stdout == "remote"
