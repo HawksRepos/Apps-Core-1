@@ -33,10 +33,6 @@
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
-
-    - name: 'Including Tasks'
-      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
-
     # FACTS #######################################################################
     - name: '{{pgrole}} Server Network Type'
       shell: 'cat /var/plexguide/plex.server'
