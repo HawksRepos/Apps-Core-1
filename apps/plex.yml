@@ -246,7 +246,7 @@
         env:
           PLEX_UID: '1000'
           PLEX_GID: '1000'
-          VERSION: '{{updateplex}}'
+          VERSION: '{{updateplex.stdout}}'
           PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
           NVIDIA_VISIBLE_DEVICES: 'all'
@@ -284,7 +284,7 @@
         env:
           PLEX_UID: '1000'
           PLEX_GID: '1000'
-          VERSION: '{{updateplex}}'
+          VERSION: '{{updateplex.stdout}}'
           PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
           NVIDIA_VISIBLE_DEVICES: 'all'
