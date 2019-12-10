@@ -423,8 +423,8 @@
         when: ('plex_db_cache_size' in ansible_run_tags)
       #### EOF Bundle ADD
 
-    - debug: msg="Final Notes - Remote Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Token {{claim.stdout}}"
+    - debug: msg="Final Notes - Remote Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Token {{claim.stdout}} | Update level {{updateplex.stdout}}"
       when: servertype.stdout == "remote"
 
-    - debug: msg="Final Notes - Local Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}}"
+    - debug: msg="Final Notes - Local Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Update level {{updateplex.stdout}}"
       when: servertype.stdout == "local"
