@@ -41,7 +41,6 @@
     - name: Register {{pgrole}}-Claim Number
       shell: 'cat /var/plexguide/plex.claim'
       register: claim
-      when: servertype.stdout == "remote"
 
     - name: Register {{pgrole}} Update role
       shell: 'cat /var/plexguide/plex.updaterole'
@@ -220,7 +219,7 @@
       when: customConnections is undefined
 
     ######################################### DEPLOY PLEX REMOTE (ANSWER 2)
-    - name: Deploy {{pgrole}} Container (Remote Edition)
+    - name: Deploy {{pgrole}} - Container (Remote Edition)
       docker_container:
         name: plex
         image: '{{image}}'
@@ -256,7 +255,7 @@
       when: servertype.stdout == "remote"
 
     ######################################### DEPLOY PLEX LOCAL (ANSWER 3)
-    - name: Deploy {{pgrole}} Container (Local Edition)
+    - name: Deploy {{pgrole}} - Container (Local Edition)
       docker_container:
         name: plex
         image: '{{image}}'
