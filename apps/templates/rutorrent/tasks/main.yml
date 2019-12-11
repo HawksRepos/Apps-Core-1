@@ -1,8 +1,7 @@
 #########################################################################
-# Title:         Cloudbox: airdcpp Role                                 #
+# Title:         Cloudbox: rtorrent Role                                #
 # Author(s):     l3uddz                                                 #
 # URL:           https://github.com/cloudbox/cloudbox                   #
-# Docker Image:  gangefors/airdcpp-webclient                            #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
