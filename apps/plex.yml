@@ -28,7 +28,7 @@
         extport6: '32413'
         intport7: '32414/udp'
         extport7: '32414'
-        image: 'plexinc/pms-docker:latest'
+        image: 'linuxserver/plex:latest'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
@@ -233,8 +233,8 @@
           - '{{ports.stdout}}{{extport6}}:{{intport6}}'
           - '{{ports.stdout}}{{extport7}}:{{intport7}}'
         env:
-          PLEX_UID: '1000'
-          PLEX_GID: '1000'
+          PGID: '1000'
+          PUID: '1000'
           VERSION: '{{updateplex.stdout}}'
           PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
@@ -271,8 +271,8 @@
           - '32413:32413/udp'
           - '32414:32414/udp'
         env:
-          PLEX_UID: '1000'
-          PLEX_GID: '1000'
+          PGID: '1000'
+          PUID: '1000'
           VERSION: '{{updateplex.stdout}}'
           PLEX_CLAIM: '{{claim.stdout}}'
           ADVERTISE_IP: '{{customConnections}}'
