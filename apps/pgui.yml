@@ -21,12 +21,6 @@
     - name: 'Including core job'
       include_tasks: '/opt/plexguide/menu/pgui/yml/_core.yml'
 
-    - name: 'Including cron job'
-      include_tasks: '/opt/plexguide/menu/pgui/yml/_cron.yml'
-
-    - name: 'Including major task'
-      include_tasks: '/opt/plexguide/menu/pgui/yml/dynamic.yml'
-
     # LABELS ######################################################################
     - name: 'Adding Traefik'
       set_fact:

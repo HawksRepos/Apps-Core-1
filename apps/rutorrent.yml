@@ -28,9 +28,6 @@
     - name: 'Including folders'
       include_tasks: '/opt/coreapps/apps/_downto.yml'
 
-    - name: 'Including Update task'
-      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
-
     # Tasks ####################################################
     - name: Delete stock themes
       shell: 'path={{item}} state=absent'

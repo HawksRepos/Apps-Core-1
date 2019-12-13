@@ -21,9 +21,6 @@
     - name: 'Including cron job'
       include_tasks: '/opt/coreapps/apps/_core.yml'
 
-    - name: 'Including Tasks'
-      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
-
     # LABELS ######################################################################
     - name: 'Adding Traefik'
       set_fact:

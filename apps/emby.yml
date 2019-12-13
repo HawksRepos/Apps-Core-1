@@ -28,9 +28,6 @@
         path: /opt/appdata/{{pgrole}}/config/system.xml
       register: xmlcheck
 
-    - name: 'Including Updates'
-      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
-
     # LABELS ######################################################################
     - name: 'Adding Traefik for {{pgrole}}'
       set_fact:

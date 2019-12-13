@@ -16,7 +16,7 @@
         pgrole: 'radarr'
         intport: '7878'
         extport: '7878'
-        image: 'linuxserver/radarr'
+        image: 'linuxserver/radarr:preview'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
@@ -24,9 +24,6 @@
 
     - name: 'Including plugins'
       include_tasks: '/opt/coreapps/apps/_plugins.yml'
-
-    - name: 'Including Tasks'
-      include_tasks: '/opt/coreapps/apps/templates/tasks/dynamic.yml'
 
     # LABELS ######################################################################
     - name: 'Adding Traefik'
