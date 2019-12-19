@@ -303,13 +303,6 @@
             insertafter: '^### SCHEDULER'
       when: not confcheck.stat.exists
 
-    - cron:
-      name: Daily Remove {{pgrole}} logs
-      special_time: 'daily'
-      job: 'truncate -s 0 /opt/appdata/nzbget/nzbget.log'
-      state: present
-      ignore_errors: yes
-
     - name: Restart {{pgrole}}
       docker_container:
         name: '{{pgrole}}'
