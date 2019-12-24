@@ -84,6 +84,7 @@
           #  linuxserver.io enable linuxserver.io compatability. #
           PUID: '1000'
           PGID: '1000'
+          DOCKER_MODS: 'justinglock40/lsioplexmod:latest'
 
     - name: Check {{pgrole}}-preferences.xml exists
       stat:
