@@ -29,3 +29,4 @@ sed -i -e "/oauth/d" /var/plexguide/app.list
 sed -i -e "/dockergc/d" /var/plexguide/app.list
 sed -i -e "/pgui/d" /var/plexguide/app.list
 sed -i -e "/crontabs/d" /var/plexguide/app.list
+sed -i -e "/crontab*/d" /var/plexguide/app.list
