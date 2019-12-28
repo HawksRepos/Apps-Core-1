@@ -317,35 +317,6 @@
       when: servertype.stdout == "local"
 
     # PLUGINS ####################################################
-     ####Radarr Bundle
-    - name: Check Radarr.Bundle exist
-      stat:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Radarr.bundle'
-      register: stat_result_radarr
-
-    - name: Clone Radarr.Bundle
-      git:
-        repo: 'https://github.com/piplongrun/Radarr.bundle.git'
-        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Radarr.bundle'
-        force: yes
-      when:
-        - stat_result_radarr.stat.exists == False
-
-     ####Sonarr Bundle
-    - name: Check Sonarr.Bundle exist
-      stat:
-        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Sonarr.bundle'
-      register: stat_result_sonarr
-
-    - name: Clone Sonarr.Bundle
-      git:
-        repo: 'https://github.com/piplongrun/Sonarr.bundle.git'
-        dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Sonarr.bundle'
-        force: yes
-      when:
-        - stat_result_sonarr.stat.exists == False
-
-     ####OpenMovieDatabase Bundle
     - name: Check OpenMovieDatabase.Bundle exist
       stat:
         path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/OpenMovieDatabase.bundle'
@@ -355,9 +326,24 @@
       git:
         repo: 'https://github.com/piplongrun/OpenMovieDatabase.bundle.git'
         dest: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/OpenMovieDatabase.bundle'
+        clone: yes
         force: yes
-      when:
-        - stat_result_openmovie.stat.exists == False    
+      when: stat_result_openmovie.stat.exists == False
+      ignore_errors: yes   
+
+    - name: Check Trakt.tv Plugin exist
+      stat:
+        path: '/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/Trakttv.bundle'
+      register: stat_result_trakt
+
+    - name: Clone Trakt.tv Plugin
+      shell: |
+        wget https://github.com/trakt/Plex-Trakt-Scrobbler/archive/master.zip -O /tmp/Plex-Trakt-Scrobbler.zip
+        unzip /tmp/Plex-Trakt-Scrobbler.zip
+        cp -r /tmp/Plex-Trakt-Scrobbler-*/Trakttv.bundle "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/"
+        rm -rf /tmp/Plex-Trakt-Scrobbler.zip
+      when: stat_result_trakt.stat.exists == False
+      ignore_errors: yes
 
      ##### Db edits 
     - name: "Install package for {{pgrole}}-db Cache size Fix"
