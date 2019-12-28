@@ -184,6 +184,8 @@
         value: 'p'
       when: plex_prefs.stat.exists
 
+    ##### remote part #####
+
     - name: 'Get {{pgrole}} Custom URL'
       shell: 'echo https://plex.{{domain.stdout}}:443,http://plex.{{domain.stdout}}:80'
       register: plex_url
@@ -203,7 +205,29 @@
     - debug: msg="plex_advert_ip is {{plex_advert_ip}}"
       when: servertype.stdout == "remote"
 
+    ##### local part #####
+
+    - name: 'Get {{pgrole}} Custom URL'
+      shell: 'echo http://{{ipaddress.stdout}}:32400,http://plex.{{domain.stdout}}:80'
+      register: plex_url
+      when: servertype.stdout == "local"
+
+    - debug: msg="Your plex_url is {{ plex_url.stdout }}"
+      when: servertype.stdout == "local"
+
+    - set_fact:
+        plex_advert_ip: 'http://{{ipaddress.stdout}}:32400'
+      when: servertype.stdout == "local"
+
+    - set_fact:
+        plex_advert_ip: '{{plex_url.stdout}}'
+      when: servertype.stdout == "local"
+
+    - debug: msg="plex_advert_ip is {{plex_advert_ip}}"
+      when: servertype.stdout == "local"
+
     ########################################## Other
+
     - name: Check /dev/dri exists
       stat:
         path: '/dev/dri'
@@ -334,17 +358,8 @@
         force: yes
       when:
         - stat_result_openmovie.stat.exists == False    
-        ########EOF BUNDLE
-        #####Db edits 
-    - name: "Install package for {{pgrole}}-db Cache size Fix"
-      apt:
-        name: "{{ packages }}"
-        state: latest
-        update_cache: yes
-      vars:
-        packages:
-        - sqlite3
-        
+
+     ##### Db edits 
     - name: "Install package for {{pgrole}}-db Cache size Fix"
       apt:
         name: "{{ packages }}"
@@ -364,7 +379,7 @@
 
     - name: Set 'default_db_cache_size' variable
       set_fact:
-        default_db_cache_size: '2000'
+        default_db_cache_size: '6000'
 
     - name: Check if 'plex.db_cache_size' was specified
       set_fact:
@@ -414,6 +429,7 @@
       - name: Display New {{pgrole}} DB Cache Size
         debug:
           msg: "Plex DB cache size is now set to '{{ new_db_cache_size.stdout | int }}'."
+
        #####EOF.DB.EDITS
 
       - name: Start {{pgrole}} Container
@@ -421,10 +437,7 @@
           name: plex
           state: started
         when: ('plex_db_cache_size' in ansible_run_tags)
+
       #### EOF Bundle ADD
 
-    - debug: msg="Final Notes - Remote Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Token {{claim.stdout}} | Update level {{updateplex.stdout}}"
-      when: servertype.stdout == "remote"
-
-    - debug: msg="Final Notes - Local Plex | IP Address {{ipaddress.stdout}} | Plex Type {{servertype.stdout}} | Update level {{updateplex.stdout}}"
-      when: servertype.stdout == "local"
+    - debug: msg="Final Notes - {{servertype.stdout}} Plex | IP Address {{ipaddress.stdout}} | Token {{claim.stdout}} | Update level {{updateplex.stdout}}"
