@@ -338,10 +338,10 @@
 
     - name: Clone Trakt.tv Plugin
       shell: |
-        wget https://github.com/trakt/Plex-Trakt-Scrobbler/archive/master.zip -O /tmp/Plex-Trakt-Scrobbler.zip
-        unzip /tmp/Plex-Trakt-Scrobbler.zip
-        cp -r /tmp/Plex-Trakt-Scrobbler-*/Trakttv.bundle "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/"
-        rm -rf /tmp/Plex-Trakt-Scrobbler.zip
+        wget https://github.com/trakt/Plex-Trakt-Scrobbler/archive/master.zip -O /home/Plex-Trakt-Scrobbler.zip
+        unzip /home/Plex-Trakt-Scrobbler.zip
+        cp -r /home/Plex-Trakt-Scrobbler-*/Trakttv.bundle "/opt/appdata/plex/database/Library/Application Support/Plex Media Server/Plug-ins/"
+        rm -rf /home/Plex-Trakt-Scrobbler*
       when: stat_result_trakt.stat.exists == False
       ignore_errors: yes
 
